@@ -1,0 +1,67 @@
+<mvc:View 
+    controllerName="com.bts.zbts.controller.z_bts"
+    xmlns:mvc="sap.ui.core.mvc" 
+    displayBlock="true"
+    xmlns="sap.m">
+    <Page id="page" title="{i18n>title}">
+        <content>
+            <Table id="idLogTable"
+                   inset="false"
+                   items="{/DailyLogSet}">
+                
+                <columns>
+                    <Column id="colDate" width="150px">
+                        <Text id="txtHeaderDate" text="Ngày tháng" />
+                    </Column>
+                    
+                    <Column id="colWeather">
+                        <Text id="txtHeaderWeather" text="Thời tiết" />
+                    </Column>
+                    
+                    <Column id="colNote">
+                        <Text id="txtHeaderNote" text="Ghi chú chung" />
+                    </Column>
+
+                    <Column id="colAction" width="50px">
+                        <Text id="txtHeaderAction" text="" />
+                    </Column>
+                </columns>
+
+                <items>
+                    <ColumnListItem id="cliItem">
+                        <cells>
+                            <DatePicker 
+                                id="inpDate"
+                                value="{path: 'LogDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' }}" 
+                                displayFormat="dd/MM/yyyy"
+                            />
+
+                            <Input 
+                                id="inpWeather"
+                                value="{Weather}" 
+                            />
+
+                            <Input 
+                                id="inpNote"
+                                value="{GeneralNote}" 
+                            />
+                            
+                            <Button id="btnDelete" icon="sap-icon://delete" type="Reject" press="onDelete" />
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </content>
+
+        <footer>
+            <OverflowToolbar id="otbFooter">
+                <ToolbarSpacer id="tbsSpacer" /> 
+                <Button id="btnSave"
+                        text="Lưu thay đổi"
+                        type="Emphasized"
+                        icon="sap-icon://save"
+                        press="onSave" />
+            </OverflowToolbar>
+        </footer>
+    </Page>
+</mvc:View>

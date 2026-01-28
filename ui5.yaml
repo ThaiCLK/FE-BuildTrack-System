@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://sap.github.io/ui5-tooling/schema/ui5.yaml.json
+
+specVersion: "4.0"
+metadata:
+  name: com.bts.zbts
+type: application
+server:
+  customMiddleware:
+    - name: fiori-tools-proxy
+      afterMiddleware: compression
+      configuration:
+        # 1. QUAN TRỌNG: Đổi thành true để bỏ qua lỗi chứng chỉ bảo mật của server trường
+        ignoreCertErrors: true 
+        ui5:
+          path:
+            - /resources
+            - /test-resources
+          url: https://ui5.sap.com
+        backend:
+          - path: /sap
+            url: https://s35.gb.ucc.cit.tum.de
+            # 2. KHUYẾN NGHỊ: Thêm mã Client của bạn vào đây (Hỏi giảng viên xem client là bao nhiêu)
+            # Thường là '200', '400' hoặc '100'. Nếu không biết, hãy thử bỏ comment dòng dưới và sửa số
+            client: '302'  
+    - name: fiori-tools-appreload
+      afterMiddleware: compression
+      configuration:
+        port: 35729
+        path: webapp
+        delay: 300
+    - name: fiori-tools-preview
+      afterMiddleware: fiori-tools-appreload
+      configuration:
+        flp:
+          theme: sap_horizon
