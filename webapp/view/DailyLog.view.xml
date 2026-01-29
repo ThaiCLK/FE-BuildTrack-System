@@ -1,0 +1,81 @@
+<mvc:View 
+    controllerName="com.bts.zbts.controller.DailyLog"
+    xmlns:mvc="sap.ui.core.mvc" 
+    displayBlock="true"
+    xmlns="sap.m">
+
+    <Page 
+        id="pageDailyLog" 
+        title="Nhật ký thi công (Dữ liệu SAP)"
+        showNavButton="false"> <content>
+            <IconTabBar
+                id="idTopMenuLog"
+                select=".onTabSelect"
+                selectedKey="dailyLog"
+                expandable="false"
+                headerBackgroundDesign="Transparent">
+                
+                <items>
+                    <IconTabFilter text="Project" key="project" />
+
+                    <IconTabFilter text="WBS" key="wbs" enabled="false"/>
+                    <IconTabFilter text="Location" key="location" enabled="false"/>
+
+                    <IconTabFilter text="Daily Log" key="dailyLog">
+                        
+                        <Table id="idLogTable"
+                               inset="false"
+                               items="{/DailyLogSet}" 
+                               mode="None">
+                            
+                            <headerToolbar>
+                                <OverflowToolbar>
+                                    <Title text="Danh sách nhật ký (SAP)" level="H2"/>
+                                    <ToolbarSpacer />
+                                    <Button icon="sap-icon://add" text="Thêm dòng" press=".onAddLog"/>
+                                </OverflowToolbar>
+                            </headerToolbar>
+
+                            <columns>
+                                <Column width="10rem"><Text text="Ngày tháng" /></Column>
+                                <Column width="8rem"><Text text="Thời tiết" /></Column>
+                                <Column><Text text="Ghi chú công việc" /></Column>
+                                <Column width="4rem" hAlign="Center"><Text text="Xóa" /></Column>
+                            </columns>
+
+                            <items>
+                                <ColumnListItem>
+                                    <cells>
+                                        <DatePicker 
+                                            value="{path: 'LogDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' }}" 
+                                            displayFormat="dd/MM/yyyy"
+                                        />
+
+                                        <Input value="{Weather}" />
+
+                                        <Input value="{GeneralNote}" />
+                                        
+                                        <Button icon="sap-icon://delete" type="Transparent" press=".onDeleteLog" />
+                                    </cells>
+                                </ColumnListItem>
+                            </items>
+                        </Table>
+
+                    </IconTabFilter>
+                    
+                    <IconTabFilter text="Report" key="report" enabled="false"/>
+                </items>
+            </IconTabBar>
+        </content>
+
+        <footer>
+            <OverflowToolbar>
+                <ToolbarSpacer /> 
+                <Button text="Lưu lên SAP"
+                        type="Emphasized"
+                        icon="sap-icon://save"
+                        press=".onSaveToSAP" />
+            </OverflowToolbar>
+        </footer>
+    </Page>
+</mvc:View>

@@ -1,0 +1,28 @@
+{
+  "Projects": [
+    {
+      "ProjectID": "PRJ-001",
+      "ProjectName": "Cao tốc Bắc Nam - Đoạn A",
+      "Location": "Nghệ An",
+      "StartDate": "2023-01-15",
+      "Status": "InProgress",
+      "StatusText": "Đang thi công"
+    },
+    {
+      "ProjectID": "PRJ-002",
+      "ProjectName": "Cầu Vĩnh Tuy 2",
+      "Location": "Hà Nội",
+      "StartDate": "2022-05-20",
+      "Status": "Completed",
+      "StatusText": "Hoàn thành"
+    },
+    {
+      "ProjectID": "PRJ-003",
+      "ProjectName": "Chung cư Smart City - Tòa S1",
+      "Location": "Nam Từ Liêm, HN",
+      "StartDate": "2023-11-01",
+      "Status": "Planning",
+      "StatusText": "Đang lập kế hoạch"
+    }
+  ]
+}

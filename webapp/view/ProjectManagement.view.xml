@@ -1,0 +1,87 @@
+<mvc:View
+    controllerName="com.bts.zbts.controller.ProjectManagement"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m">
+    
+    <Page id="pageProjectManagement" title="Project &amp; Site Management" showNavButton="false">
+        <content>
+            
+            <IconTabBar
+                id="idTopMenuProject"
+                select=".onTabSelect"
+                selectedKey="project"
+                expandable="false"
+                headerBackgroundDesign="Transparent">
+                
+                <items>
+                    <IconTabFilter text="Project" key="project">
+                        
+                        <Table
+                            id="idProjectsTable"
+                            items="{mock>/Projects}"
+                            growing="true"
+                            growingThreshold="10"
+                            mode="None"> 
+                            
+                            <headerToolbar>
+                                <OverflowToolbar>
+                                    <Title text="Project List" level="H2"/>
+                                    <ToolbarSpacer/>
+                                    <SearchField width="20%" placeholder="Find..."/>
+                                    <Button icon="sap-icon://add" text="Create Project" type="Emphasized" press=".onAddProject"/>
+                                </OverflowToolbar>
+                            </headerToolbar>
+
+                            <columns>
+                                <Column width="5rem"><Text text="Project ID" /></Column>
+                                <Column><Text text="Project Name" /></Column>
+                                <Column minScreenWidth="Tablet" demandPopin="true"><Text text="Location" /></Column>
+                                <Column minScreenWidth="Tablet" demandPopin="true"><Text text="Start Date" /></Column>
+                                <Column hAlign="Center"><Text text="Status" /></Column>
+                                <Column width="6rem" hAlign="End"><Text text="Action" /></Column>
+                            </columns>
+
+                            <items>
+                                <ColumnListItem>
+                                    <cells>
+                                        <ObjectIdentifier title="{mock>ProjectID}"/>
+                                        <Text text="{mock>ProjectName}" />
+                                        <Text text="{mock>Location}"/>
+                                        <Text text="{mock>StartDate}"/>
+                                        <ObjectStatus
+                                            text="{mock>StatusText}"
+                                            state="{= ${mock>Status} === 'Completed' ? 'Success' : ${mock>Status} === 'InProgress' ? 'Warning' : 'None' }" />
+                                        
+                                        <HBox justifyContent="End">
+                                            <Button 
+                                                icon="sap-icon://edit" 
+                                                type="Transparent" 
+                                                tooltip="Sửa"
+                                                press=".onEditProject" />
+                                            
+                                            <Button 
+                                                icon="sap-icon://delete" 
+                                                type="Transparent" 
+                                                tooltip="Xóa"
+                                                press=".onDeleteProject" 
+                                                class="sapUiTinyMarginBegin"/> 
+                                        </HBox>
+                                    </cells>
+                                </ColumnListItem>
+                            </items>
+                        </Table>
+                        </IconTabFilter>
+
+                    <IconTabFilter text="WBS" key="wbs" enabled="false"/>
+                    <IconTabFilter text="Location" key="location" enabled="false"/>
+
+                    <IconTabFilter text="Daily Log" key="dailyLog"/>
+                    
+                    <IconTabFilter text="Report" key="report" enabled="false"/>
+
+                </items>
+            </IconTabBar>
+
+        </content>
+    </Page>
+</mvc:View>

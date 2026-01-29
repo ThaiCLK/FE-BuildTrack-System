@@ -44,7 +44,7 @@
     }
   },
   "sap.ui5": {
-    "flexEnabled": true,
+    "flexEnabled": false,
     "dependencies": {
       "minUI5Version": "1.108.33",
       "libs": {
@@ -70,6 +70,10 @@
           "defaultBindingMode": "TwoWay",
           "useBatch": false
         }
+      },
+      "mock": {
+        "type": "sap.ui.model.json.JSONModel",
+        "uri": "model/mock_projects.json"
       }
     },
     "resources": {
@@ -91,20 +95,30 @@
       },
       "routes": [
         {
-          "name": "Routez_bts",
-          "pattern": ":?query:",
-          "target": [
-            "Targetz_bts"
-          ]
+          "name": "RouteProjectManagement",
+          "pattern": "",
+          "target": "TargetProjectManagement"
+        },
+        {
+          "name": "RouteDailyLog",
+          "pattern": "dailylog",
+          "target": "TargetDailyLog"
         }
       ],
       "targets": {
-        "Targetz_bts": {
+        "TargetProjectManagement": {
           "viewType": "XML",
           "transition": "slide",
           "clearControlAggregation": false,
-          "viewId": "z_bts",
-          "viewName": "z_bts"
+          "viewId": "ProjectManagement",
+          "viewName": "ProjectManagement"
+        },
+        "TargetDailyLog": {
+          "viewType": "XML",
+          "transition": "slide",
+          "clearControlAggregation": false,
+          "viewId": "DailyLog",
+          "viewName": "DailyLog"
         }
       }
     },
@@ -112,7 +126,7 @@
       "viewName": "com.bts.zbts.view.App",
       "type": "XML",
       "async": true,
-      "id": "App"
+      "id": "app"
     }
   }
 }
