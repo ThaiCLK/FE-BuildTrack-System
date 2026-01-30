@@ -49,7 +49,9 @@
       "minUI5Version": "1.108.33",
       "libs": {
         "sap.m": {},
-        "sap.ui.core": {}
+        "sap.ui.core": {},
+        "sap.ui.layout": {},
+        "sap.ui.table": {}
       }
     },
     "contentDensities": {
@@ -97,12 +99,23 @@
         {
           "name": "RouteProjectManagement",
           "pattern": "",
-          "target": "TargetProjectManagement"
+          "target": [
+            "TargetProjectManagement"
+          ]
         },
         {
           "name": "RouteDailyLog",
-          "pattern": "dailylog",
-          "target": "TargetDailyLog"
+          "pattern": "daily-log",
+          "target": [
+            "TargetDailyLog"
+          ]
+        },
+        {
+          "name": "RouteProjectDetail",
+          "pattern": "project/{projectID}",
+          "target": [
+            "TargetProjectDetail"
+          ]
         }
       ],
       "targets": {
@@ -119,6 +132,13 @@
           "clearControlAggregation": false,
           "viewId": "DailyLog",
           "viewName": "DailyLog"
+        },
+        "TargetProjectDetail": {
+          "viewType": "XML",
+          "transition": "slide",
+          "clearControlAggregation": false,
+          "viewId": "ProjectDetail",
+          "viewName": "ProjectDetail"
         }
       }
     },

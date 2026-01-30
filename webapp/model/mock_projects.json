@@ -3,26 +3,67 @@
     {
       "ProjectID": "PRJ-001",
       "ProjectName": "Cao tốc Bắc Nam - Đoạn A",
+      "ProjectType": "ROAD",
       "Location": "Nghệ An",
       "StartDate": "2023-01-15",
-      "Status": "InProgress",
-      "StatusText": "Đang thi công"
+      "EndDate": "2025-12-31",
+      "Status": "PLANNING", 
+      "StatusText": "Planning (Chờ Commander Duyệt)",
+      "WBS": [
+        {
+          "NodeID": "WBS-01",
+          "TaskName": "Giai đoạn 1: Chuẩn bị mặt bằng",
+          "Type": "PHASE",
+          "Status": "OPEN",
+          "children": [
+            { "NodeID": "WBS-01-01", "TaskName": "Giải phóng mặt bằng", "Type": "TASK", "Status": "OPEN" },
+            { "NodeID": "WBS-01-02", "TaskName": "Xây dựng lán trại", "Type": "TASK", "Status": "OPEN" }
+          ]
+        },
+        {
+          "NodeID": "WBS-02",
+          "TaskName": "Giai đoạn 2: Thi công nền móng",
+          "Type": "PHASE",
+          "Status": "LOCKED",
+          "children": []
+        }
+      ]
     },
     {
       "ProjectID": "PRJ-002",
       "ProjectName": "Cầu Vĩnh Tuy 2",
+      "ProjectType": "BRIDGE",
       "Location": "Hà Nội",
       "StartDate": "2022-05-20",
-      "Status": "Completed",
-      "StatusText": "Hoàn thành"
+      "EndDate": "2024-06-30",
+      "Status": "REVIEWED",
+      "StatusText": "Reviewed (Chờ Consultant Duyệt)",
+      "WBS": [
+        {
+          "NodeID": "WBS-01",
+          "TaskName": "Thi công trụ cầu T1",
+          "Type": "PHASE",
+          "Status": "OPEN",
+          "children": [
+             { "NodeID": "WBS-01-01", "TaskName": "Khoan cọc nhồi", "Type": "TASK", "Status": "DONE" }
+          ]
+        }
+      ]
     },
     {
       "ProjectID": "PRJ-003",
       "ProjectName": "Chung cư Smart City - Tòa S1",
+      "ProjectType": "BUILDING",
       "Location": "Nam Từ Liêm, HN",
       "StartDate": "2023-11-01",
-      "Status": "Planning",
-      "StatusText": "Đang lập kế hoạch"
+      "EndDate": "2026-02-28",
+      "Status": "ACTIVE",
+      "StatusText": "Active (Đang thi công)",
+      "WBS": [
+        {
+          "NodeID": "WBS-01", "TaskName": "Móng và Tầng hầm", "Type": "PHASE", "Status": "IN_PROGRESS", "children": []
+        }
+      ]
     }
   ]
 }
