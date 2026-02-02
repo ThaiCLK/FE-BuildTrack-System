@@ -44,6 +44,16 @@
     }
   },
   "sap.ui5": {
+    "config": {
+        "fullWidth": true
+    },
+    "resources": {
+        "css": [
+            {
+                "uri": "css/style.css"
+            }
+        ]
+    },
     "flexEnabled": false,
     "dependencies": {
       "minUI5Version": "1.108.33",
@@ -51,7 +61,8 @@
         "sap.m": {},
         "sap.ui.core": {},
         "sap.ui.layout": {},
-        "sap.ui.table": {}
+        "sap.ui.table": {},
+        "sap.gantt": {}
       }
     },
     "contentDensities": {
@@ -77,13 +88,6 @@
         "type": "sap.ui.model.json.JSONModel",
         "uri": "model/mock_projects.json"
       }
-    },
-    "resources": {
-      "css": [
-        {
-          "uri": "css/style.css"
-        }
-      ]
     },
     "routing": {
       "config": {

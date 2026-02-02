@@ -2,66 +2,276 @@
   "Projects": [
     {
       "ProjectID": "PRJ-001",
-      "ProjectName": "Cao tốc Bắc Nam - Đoạn A",
+      "ProjectName": "North-South Expressway - Section A",
       "ProjectType": "ROAD",
-      "Location": "Nghệ An",
-      "StartDate": "2023-01-15",
-      "EndDate": "2025-12-31",
-      "Status": "PLANNING", 
-      "StatusText": "Planning (Chờ Commander Duyệt)",
+      "Location": "Nghe An",
+      "StartDate": "2023-01-01",
+      "EndDate": "2023-12-31",
+      "Status": "IN_PROGRESS",
+      "StatusText": "Construction Phase",
       "WBS": [
         {
           "NodeID": "WBS-01",
-          "TaskName": "Giai đoạn 1: Chuẩn bị mặt bằng",
+          "TaskName": "Phase 1: Site Preparation & Clearance",
           "Type": "PHASE",
-          "Status": "OPEN",
+          "Status": "COMPLETED",
+          "StartDate": "2023-01-01",
+          "EndDate": "2023-02-28",
           "children": [
-            { "NodeID": "WBS-01-01", "TaskName": "Giải phóng mặt bằng", "Type": "TASK", "Status": "OPEN" },
-            { "NodeID": "WBS-01-02", "TaskName": "Xây dựng lán trại", "Type": "TASK", "Status": "OPEN" }
+            { "NodeID": "WBS-01-01", "TaskName": "Land Acquisition & Demolition", "Type": "TASK", "Status": "COMPLETED", "StartDate": "2023-01-01", "EndDate": "2023-01-31" },
+            { "NodeID": "WBS-01-02", "TaskName": "UXO Clearance (Rà phá bom mìn)", "Type": "TASK", "Status": "COMPLETED", "StartDate": "2023-01-15", "EndDate": "2023-02-15" },
+            { "NodeID": "WBS-01-03", "TaskName": "Mobilization & Site Office Setup", "Type": "TASK", "Status": "COMPLETED", "StartDate": "2023-02-01", "EndDate": "2023-02-28" }
           ]
         },
         {
           "NodeID": "WBS-02",
-          "TaskName": "Giai đoạn 2: Thi công nền móng",
+          "TaskName": "Phase 2: Earthworks & Foundation",
+          "Type": "PHASE",
+          "Status": "IN_PROGRESS",
+          "StartDate": "2023-03-01",
+          "EndDate": "2023-05-31",
+          "children": [
+            { "NodeID": "WBS-02-01", "TaskName": "Excavation Works", "Type": "TASK", "Status": "COMPLETED", "StartDate": "2023-03-01", "EndDate": "2023-04-15" },
+            { "NodeID": "WBS-02-02", "TaskName": "Embankment Filling (Đắp nền)", "Type": "TASK", "Status": "IN_PROGRESS", "StartDate": "2023-03-15", "EndDate": "2023-05-15" },
+            { "NodeID": "WBS-02-03", "TaskName": "Soil Stabilization", "Type": "TASK", "Status": "OPEN", "StartDate": "2023-04-15", "EndDate": "2023-05-31" }
+          ]
+        },
+        {
+          "NodeID": "WBS-03",
+          "TaskName": "Phase 3: Drainage & Bridges",
+          "Type": "PHASE",
+          "Status": "OPEN",
+          "StartDate": "2023-04-01",
+          "EndDate": "2023-08-31",
+          "children": [
+            { "NodeID": "WBS-03-01", "TaskName": "Culvert Construction (Cống thoát nước)", "Type": "TASK", "Status": "OPEN", "StartDate": "2023-04-01", "EndDate": "2023-06-30" },
+            { "NodeID": "WBS-03-02", "TaskName": "Bridge Substructure (Piles/Piers)", "Type": "TASK", "Status": "OPEN", "StartDate": "2023-05-01", "EndDate": "2023-07-15" },
+            { "NodeID": "WBS-03-03", "TaskName": "Bridge Superstructure (Girders/Deck)", "Type": "TASK", "Status": "LOCKED", "StartDate": "2023-07-01", "EndDate": "2023-08-31" }
+          ]
+        },
+        {
+          "NodeID": "WBS-04",
+          "TaskName": "Phase 4: Pavement Structure",
           "Type": "PHASE",
           "Status": "LOCKED",
-          "children": []
+          "StartDate": "2023-08-01",
+          "EndDate": "2023-10-31",
+          "children": [
+            { "NodeID": "WBS-04-01", "TaskName": "Sub-base Layer Construction", "Type": "TASK", "Status": "LOCKED", "StartDate": "2023-08-01", "EndDate": "2023-09-15" },
+            { "NodeID": "WBS-04-02", "TaskName": "Base Layer (Aggregate Base)", "Type": "TASK", "Status": "LOCKED", "StartDate": "2023-09-01", "EndDate": "2023-10-15" },
+            { "NodeID": "WBS-04-03", "TaskName": "Asphalt Concrete Paving", "Type": "TASK", "Status": "LOCKED", "StartDate": "2023-10-01", "EndDate": "2023-10-31" }
+          ]
+        },
+        {
+          "NodeID": "WBS-05",
+          "TaskName": "Phase 5: Finishing & Traffic Safety",
+          "Type": "PHASE",
+          "Status": "LOCKED",
+          "StartDate": "2023-11-01",
+          "EndDate": "2023-12-31",
+          "children": [
+            { "NodeID": "WBS-05-01", "TaskName": "Road Markings & Signage", "Type": "TASK", "Status": "LOCKED", "StartDate": "2023-11-01", "EndDate": "2023-11-30" },
+            { "NodeID": "WBS-05-02", "TaskName": "Guardrails & Lighting System", "Type": "TASK", "Status": "LOCKED", "StartDate": "2023-11-15", "EndDate": "2023-12-15" },
+            { "NodeID": "WBS-05-03", "TaskName": "Final Inspection & Handover", "Type": "TASK", "Status": "LOCKED", "StartDate": "2023-12-01", "EndDate": "2023-12-31" }
+          ]
         }
       ]
     },
     {
       "ProjectID": "PRJ-002",
-      "ProjectName": "Cầu Vĩnh Tuy 2",
+      "ProjectName": "Vinh Tuy Bridge - Phase 2",
       "ProjectType": "BRIDGE",
-      "Location": "Hà Nội",
-      "StartDate": "2022-05-20",
+      "Location": "Hanoi",
+      "StartDate": "2023-01-01",
       "EndDate": "2024-06-30",
       "Status": "REVIEWED",
-      "StatusText": "Reviewed (Chờ Consultant Duyệt)",
+      "StatusText": "Reviewed (Waiting for Consultant)",
       "WBS": [
         {
           "NodeID": "WBS-01",
-          "TaskName": "Thi công trụ cầu T1",
+          "TaskName": "Pillar Construction T1",
           "Type": "PHASE",
           "Status": "OPEN",
+          "StartDate": "2023-02-01",
+          "EndDate": "2023-08-30",
           "children": [
-             { "NodeID": "WBS-01-01", "TaskName": "Khoan cọc nhồi", "Type": "TASK", "Status": "DONE" }
+            { 
+              "NodeID": "WBS-01-01", 
+              "TaskName": "Bore Pile Drilling", 
+              "Type": "TASK", 
+              "Status": "DONE",
+              "StartDate": "2023-02-15",
+              "EndDate": "2023-05-20"
+            }
           ]
         }
       ]
     },
     {
       "ProjectID": "PRJ-003",
-      "ProjectName": "Chung cư Smart City - Tòa S1",
+      "ProjectName": "Smart City Apartment - Tower S1",
       "ProjectType": "BUILDING",
-      "Location": "Nam Từ Liêm, HN",
+      "Location": "Nam Tu Liem, Hanoi",
       "StartDate": "2023-11-01",
       "EndDate": "2026-02-28",
       "Status": "ACTIVE",
-      "StatusText": "Active (Đang thi công)",
+      "StatusText": "Active (Under Construction)",
       "WBS": [
         {
-          "NodeID": "WBS-01", "TaskName": "Móng và Tầng hầm", "Type": "PHASE", "Status": "IN_PROGRESS", "children": []
+          "NodeID": "WBS-01", 
+          "TaskName": "Basement & Foundation", 
+          "Type": "PHASE", 
+          "Status": "IN_PROGRESS",
+          "StartDate": "2023-11-05",
+          "EndDate": "2024-04-30", 
+          "children": []
+        }
+      ]
+    },
+    {
+      "ProjectID": "PRJ-004",
+      "ProjectName": "Long Thanh Int'l Airport - Terminal 1",
+      "ProjectType": "BUILDING",
+      "Location": "Dong Nai",
+      "StartDate": "2024-06-01",
+      "EndDate": "2028-12-31",
+      "Status": "PLANNING",
+      "StatusText": "Planning (Waiting for Commander)",
+      "WBS": [
+        {
+          "NodeID": "WBS-01", 
+          "TaskName": "Design & Feasibility Study", 
+          "Type": "PHASE", 
+          "Status": "OPEN", 
+          "StartDate": "2024-06-01",
+          "EndDate": "2024-12-31",
+          "children": []
+        }
+      ]
+    },
+    {
+      "ProjectID": "PRJ-005",
+      "ProjectName": "Coastal Road Route 5 Expansion",
+      "ProjectType": "ROAD",
+      "Location": "Quang Ninh",
+      "StartDate": "2024-01-10",
+      "EndDate": "2025-05-20",
+      "Status": "REVIEWED",
+      "StatusText": "Reviewed (Waiting for Consultant)",
+      "WBS": [
+        {
+          "NodeID": "WBS-01", 
+          "TaskName": "Geological Survey", 
+          "Type": "PHASE", 
+          "Status": "DONE", 
+          "StartDate": "2024-01-15",
+          "EndDate": "2024-03-30",
+          "children": []
+        }
+      ]
+    },
+    {
+      "ProjectID": "PRJ-006",
+      "ProjectName": "Dragon Bridge Maintenance Project",
+      "ProjectType": "BRIDGE",
+      "Location": "Da Nang",
+      "StartDate": "2023-03-01",
+      "EndDate": "2023-09-15",
+      "Status": "CLOSED",
+      "StatusText": "Closed (Completed)",
+      "WBS": [
+        {
+          "NodeID": "WBS-01", 
+          "TaskName": "Final Inspection", 
+          "Type": "PHASE", 
+          "Status": "DONE", 
+          "StartDate": "2023-08-01",
+          "EndDate": "2023-09-10",
+          "children": []
+        }
+      ]
+    },
+    {
+      "ProjectID": "PRJ-007",
+      "ProjectName": "Samsung R&D Center Expansion",
+      "ProjectType": "BUILDING",
+      "Location": "Thai Nguyen",
+      "StartDate": "2023-08-15",
+      "EndDate": "2025-02-28",
+      "Status": "ACTIVE",
+      "StatusText": "Active (Under Construction)",
+      "WBS": [
+        {
+          "NodeID": "WBS-01", 
+          "TaskName": "Steel Structure Installation", 
+          "Type": "PHASE", 
+          "Status": "IN_PROGRESS", 
+          "StartDate": "2023-09-01",
+          "EndDate": "2024-02-28",
+          "children": []
+        }
+      ]
+    },
+    {
+      "ProjectID": "PRJ-008",
+      "ProjectName": "Hai Van Tunnel Upgrade System",
+      "ProjectType": "ROAD",
+      "Location": "Da Nang - Hue",
+      "StartDate": "2022-01-01",
+      "EndDate": "2023-12-31",
+      "Status": "CLOSED",
+      "StatusText": "Closed (Completed)",
+      "WBS": [
+        {
+          "NodeID": "WBS-01", 
+          "TaskName": "System Testing", 
+          "Type": "PHASE", 
+          "Status": "DONE", 
+          "StartDate": "2023-11-01",
+          "EndDate": "2023-12-30",
+          "children": []
+        }
+      ]
+    },
+    {
+      "ProjectID": "PRJ-009",
+      "ProjectName": "Thu Thiem 4 Bridge",
+      "ProjectType": "BRIDGE",
+      "Location": "Ho Chi Minh City",
+      "StartDate": "2024-10-01",
+      "EndDate": "2027-10-01",
+      "Status": "PLANNING",
+      "StatusText": "Planning (Waiting for Commander)",
+      "WBS": [
+        {
+          "NodeID": "WBS-01", 
+          "TaskName": "Architectural Design Contest", 
+          "Type": "PHASE", 
+          "Status": "OPEN", 
+          "StartDate": "2024-10-05",
+          "EndDate": "2024-12-31",
+          "children": []
+        }
+      ]
+    },
+    {
+      "ProjectID": "PRJ-010",
+      "ProjectName": "EcoPark Grand Villas - Phase 3",
+      "ProjectType": "BUILDING",
+      "Location": "Hung Yen",
+      "StartDate": "2024-03-15",
+      "EndDate": "2026-06-30",
+      "Status": "REVIEWED",
+      "StatusText": "Reviewed (Waiting for Consultant)",
+      "WBS": [
+        {
+          "NodeID": "WBS-01", 
+          "TaskName": "Landscape Design Approval", 
+          "Type": "PHASE", 
+          "Status": "DONE", 
+          "StartDate": "2024-03-20",
+          "EndDate": "2024-05-20",
+          "children": []
         }
       ]
     }

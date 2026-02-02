@@ -8,12 +8,11 @@ sap.ui.define([
     "sap/m/Button",
     "sap/m/Label",
     "sap/m/Input",
-    "sap/m/TextArea",
     "sap/m/Select",
     "sap/ui/core/Item",
     "sap/m/DatePicker",
-    "sap/m/HBox"  // <--- QUAN TRỌNG: Thư viện bắt buộc để dùng HBox
-], function (Controller, JSONModel, MessageBox, MessageToast, UIComponent, Dialog, Button, Label, Input, TextArea, Select, Item, DatePicker, HBox) {
+    "sap/m/HBox"  
+], function (Controller, JSONModel, MessageBox, MessageToast, Dialog, Button, Label, Input, Select, Item, DatePicker, HBox) {
     "use strict";
 
     return Controller.extend("com.bts.zbts.controller.ProjectManagement", {
@@ -29,28 +28,9 @@ sap.ui.define([
             }.bind(this));
 
             this.getView().setModel(oModel, "mock");
-
-            // 2. Kích hoạt Router để xử lý thanh Toolbar (Tab Bar)
-            var oRouter = UIComponent.getRouterFor(this);
-            // Sử dụng đúng tên Route như code cũ của bạn
-            oRouter.getRoute("RouteProjectManagement").attachPatternMatched(this._onRouteMatched, this);
         },
 
-        _onRouteMatched: function () {
-            // Hàm này đảm bảo khi vào trang, Tab "Project" sẽ được chọn sáng lên
-            var oTabBar = this.byId("idTopMenuProject");
-            if (oTabBar) { 
-                oTabBar.setSelectedKey("project"); 
-            }
-        },
-
-        onTabSelect: function (oEvent) {
-            // Xử lý khi bấm vào các Tab (Daily Log, Report...)
-            var sKey = oEvent.getParameter("key");
-            if (sKey === "dailyLog") {
-                this.getOwnerComponent().getRouter().navTo("RouteDailyLog");
-            }
-        },
+        // --- ĐÃ BỎ: _onRouteMatched và onTabSelect vì không còn TabBar ở màn hình này ---
 
         // --- LOGIC TỰ ĐỘNG ĐÓNG DỰ ÁN (AUTO-CLOSE) ---
         _checkAutoCloseProjects: function(oModel) {
@@ -62,41 +42,68 @@ sap.ui.define([
             var bChanged = false;
 
             aProjects.forEach(function(prj) {
-                if (!prj.EndDate) return; // Bỏ qua nếu không có ngày kết thúc
-
+                if (!prj.EndDate) return;
                 var dEnd = new Date(prj.EndDate);
-                // Nếu quá hạn và chưa đóng -> Đóng luôn
-                if (oToday > dEnd && prj.Status !== "Closed") {
-                    prj.Status = "Closed";
+                
+                // Luôn so sánh và gán bằng "CLOSED" (in hoa)
+                if (oToday > dEnd && prj.Status !== "CLOSED") {
+                    prj.Status = "CLOSED"; 
+                    prj.StatusText = "Closed (Expired)"; 
                     bChanged = true;
                 }
             });
 
             if (bChanged) {
                 oModel.refresh();
-                // Tắt thông báo popup để đỡ phiền, chỉ log vào console
-                console.log("Auto-closed expired projects.");
             }
         },
 
-        // --- POPUP TẠO MỚI (Đã sửa lỗi HBox và Layout) ---
+        // Formatters
+        formatStatusText: function(sStatus) {
+            if (!sStatus) return "";
+            return sStatus.charAt(0).toUpperCase() + sStatus.slice(1).toLowerCase();
+        },
+
+        formatStatusState: function(sStatus) {
+            if (!sStatus) return "None";
+            switch (sStatus.toUpperCase()) {
+                case "ACTIVE": return "Success";      
+                case "PLANNING": return "Information"; 
+                case "REVIEWED": return "Warning";    
+                case "CLOSED": return "Error";        
+                default: return "None";
+            }
+        },
+        
+        formatProjectType: function(sType) {
+             if (!sType) return "";
+             return sType.charAt(0).toUpperCase() + sType.slice(1).toLowerCase();
+        },
+
+        // --- NAVIGATION ---
+        onPressProject: function(oEvent) {
+            var sProjectID = oEvent.getSource().getBindingContext("mock").getProperty("ProjectID");
+            this.getOwnerComponent().getRouter().navTo("RouteProjectDetail", { projectID: sProjectID });
+        },
+
+        // --- CÁC LOGIC CÒN LẠI (Create, Edit, Delete) GIỮ NGUYÊN ---
+        // (Copy nguyên phần logic Create, Edit, Delete từ code cũ của bạn vào đây)
+        // ... (onAddProject, _doCreateProject, onEditProject, _doUpdateProject, onDeleteProject...)
+        
         onAddProject: function () {
-            var that = this;
-            
-            // Xóa dialog cũ để tránh lỗi ID trùng lặp
+            // ... (Code cũ của bạn)
+             var that = this;
             if (this._oCreateDialog) {
                 this._oCreateDialog.destroy();
                 this._oCreateDialog = null;
             }
-
             this._oCreateDialog = new Dialog({
                 title: "Create New Project",
                 type: "Message",
-                contentWidth: "600px", // Popup rộng rãi hơn
+                contentWidth: "600px",
                 content: [
                     new Label({ text: "Project Name", required: true }),
                     new Input("newProjectName", { placeholder: "e.g. Metro Line 3" }),
-                    
                     new Label({ text: "Project Type" }),
                     new Select("newProjectType", {
                         width: "100%",
@@ -108,19 +115,13 @@ sap.ui.define([
                         ],
                         selectedKey: "ROAD"
                     }),
-
                     new Label({ text: "Timeline (Start - Est. End)" }),
-                    // HBox giúp 2 ô ngày tháng nằm ngang hàng
                     new HBox({
                         alignItems: "Center",
                         items: [
                             new DatePicker("newStartDate", { 
-                                width: "100%", 
-                                placeholder: "Start Date", 
-                                displayFormat: "yyyy-MM-dd", 
-                                valueFormat: "yyyy-MM-dd",
+                                width: "100%", placeholder: "Start Date", displayFormat: "yyyy-MM-dd", valueFormat: "yyyy-MM-dd",
                                 change: function(oEvent) {
-                                    // Tự động cộng 1 năm cho EndDate
                                     var sVal = oEvent.getParameter("value");
                                     if (sVal) {
                                         var dStart = new Date(sVal);
@@ -132,38 +133,21 @@ sap.ui.define([
                                 }
                             }),
                             new Label({ text: " - ", width: "2rem", textAlign: "Center" }),
-                            new DatePicker("newEndDate", { 
-                                width: "100%", 
-                                placeholder: "Est. End Date", 
-                                displayFormat: "yyyy-MM-dd", 
-                                valueFormat: "yyyy-MM-dd" 
-                            })
+                            new DatePicker("newEndDate", { width: "100%", placeholder: "Est. End Date", displayFormat: "yyyy-MM-dd", valueFormat: "yyyy-MM-dd" })
                         ]
                     }),
-
                     new Label({ text: "Location" }),
                     new Input("newLocation", { placeholder: "e.g. HCMC" })
                 ],
-                beginButton: new Button({
-                    text: "Create",
-                    type: "Emphasized",
-                    press: function () { that._doCreateProject(); }
-                }),
-                endButton: new Button({
-                    text: "Cancel",
-                    press: function () { that._oCreateDialog.close(); }
-                }),
-                afterClose: function() {
-                    that._oCreateDialog.destroy();
-                    that._oCreateDialog = null;
-                }
+                beginButton: new Button({ text: "Create", type: "Emphasized", press: function () { that._doCreateProject(); } }),
+                endButton: new Button({ text: "Cancel", press: function () { that._oCreateDialog.close(); } }),
+                afterClose: function() { that._oCreateDialog.destroy(); that._oCreateDialog = null; }
             });
-
             this._oCreateDialog.open();
         },
 
-        // --- XỬ LÝ LƯU DỰ ÁN ---
         _doCreateProject: function () {
+            // ... (Giữ nguyên logic tạo dự án cũ của bạn)
             var sName = sap.ui.getCore().byId("newProjectName").getValue();
             var sType = sap.ui.getCore().byId("newProjectType").getSelectedKey();
             var sLoc = sap.ui.getCore().byId("newLocation").getValue();
@@ -171,8 +155,6 @@ sap.ui.define([
             var sEnd = sap.ui.getCore().byId("newEndDate").getValue();
 
             if (!sName) { MessageToast.show("Name is required!"); return; }
-            
-            // Xử lý ngày mặc định
             if (!sStart) sStart = new Date().toISOString().slice(0, 10);
             if (!sEnd) {
                 var d = new Date(sStart);
@@ -180,55 +162,57 @@ sap.ui.define([
                 sEnd = d.toISOString().slice(0, 10);
             }
 
-            // Tạo ID mới (Tự tăng)
-            var oModel = this.getView().getModel("mock");
-            var aProjects = oModel.getProperty("/Projects");
-            var iMaxID = 0;
-            aProjects.forEach(function(prj) {
-                if (prj.ProjectID && prj.ProjectID.startsWith("PRJ-")) {
-                    var iNum = parseInt(prj.ProjectID.split("-")[1], 10);
-                    if (iNum > iMaxID) iMaxID = iNum;
-                }
-            });
-            var sNextID = "PRJ-" + ("000" + (iMaxID + 1)).slice(-3);
+            var sInitialStatus = "PLANNING";
+            var sInitialStatusText = "Planning";
+            var oEndDate = new Date(sEnd);
+            var oToday = new Date();
+            oToday.setHours(0, 0, 0, 0); 
+            if (oEndDate < oToday) { sInitialStatus = "CLOSED"; sInitialStatusText = "Closed"; }
 
-            // Thêm vào danh sách
+            var oViewModel = this.getView().getModel("mock");
+            var aCurrentProjects = oViewModel ? oViewModel.getProperty("/Projects") : [];
+            var iMaxID = 0;
+            if (aCurrentProjects) {
+                aCurrentProjects.forEach(function(prj) {
+                    if (prj.ProjectID && prj.ProjectID.startsWith("PRJ-")) {
+                        var iNum = parseInt(prj.ProjectID.split("-")[1], 10);
+                        if (iNum > iMaxID) iMaxID = iNum;
+                    }
+                });
+            }
+            var sNextID = "PRJ-" + ("000" + (iMaxID + 1)).slice(-3);
+            var oUserModel = this.getOwnerComponent().getModel("userInfo");
+            var sManagerName = oUserModel ? (oUserModel.getProperty("/name") || "Admin User") : "Admin User";
+
             var oNewProject = {
-                "ProjectID": sNextID,
-                "ProjectName": sName,
-                "ProjectType": sType,
-                "Location": sLoc || "TBD",
-                "StartDate": sStart,
-                "EndDate": sEnd, 
-                "Status": "Planning", // Mặc định là Planning
-                "WBS": []
+                "ProjectID": sNextID, "ProjectName": sName, "ProjectType": sType, "Location": sLoc || "TBD",
+                "StartDate": sStart, "EndDate": sEnd, "Status": sInitialStatus, "StatusText": sInitialStatusText,
+                "Manager": sManagerName, "WBS": []
             };
 
-            aProjects.unshift(oNewProject);
-            oModel.refresh();
-            this._oCreateDialog.close();
-            MessageToast.show("Created Project: " + sNextID);
-        },
-
-        // --- CÁC HÀM HỖ TRỢ KHÁC ---
-        formatStatusState: function(sStatus) {
-            switch (sStatus) {
-                case "Active": return "Success";
-                case "Reviewed": return "Warning";
-                case "Planning": return "Information";
-                case "Closed": return "None";
-                default: return "None";
+            var oComponentModel = this.getOwnerComponent().getModel("mock");
+            if (oComponentModel) {
+                var aCompProjects = oComponentModel.getProperty("/Projects");
+                if (!aCompProjects) aCompProjects = [];
+                var bExists = aCompProjects.some(function(p){ return p.ProjectID === sNextID; });
+                if (!bExists) {
+                    aCompProjects.unshift(oNewProject);
+                    oComponentModel.setProperty("/Projects", aCompProjects);
+                    oComponentModel.refresh(true); 
+                }
             }
-        },
-
-        formatProjectType: function(sType) {
-            if (!sType) return "";
-            return sType.charAt(0).toUpperCase() + sType.slice(1).toLowerCase();
-        },
-
-        onPressProject: function(oEvent) {
-            var sProjectID = oEvent.getSource().getBindingContext("mock").getProperty("ProjectID");
-            this.getOwnerComponent().getRouter().navTo("RouteProjectDetail", { projectID: sProjectID });
+            if (oViewModel && oViewModel !== oComponentModel) {
+                var aViewProjects = oViewModel.getProperty("/Projects");
+                if (!aViewProjects) aViewProjects = [];
+                var bExistsView = aViewProjects.some(function(p){ return p.ProjectID === sNextID; });
+                if (!bExistsView) {
+                    aViewProjects.unshift(oNewProject);
+                    oViewModel.setProperty("/Projects", aViewProjects);
+                    oViewModel.refresh(true);
+                }
+            }
+            this._oCreateDialog.close();
+            MessageToast.show("Created Project " + sNextID + " successfully!");
         },
 
         onDeleteProject: function(oEvent) {
@@ -247,14 +231,59 @@ sap.ui.define([
             });
         },
         
-        onShowFullText: function(oEvent) {
-            try { oEvent.cancelBubble(); } catch (e) {}
-            var sText = oEvent.getSource().getText();
-            MessageBox.information(sText, { title: "Full Details" });
+        onEditProject: function(oEvent) {
+            var that = this;
+            var oContext = oEvent.getSource().getBindingContext("mock");
+            var oRowData = oContext.getObject();
+            this._sEditPath = oContext.getPath();
+            var oCloneData = JSON.parse(JSON.stringify(oRowData));
+            var oEditModel = new JSONModel(oCloneData);
+
+            if (!this._oEditDialog) {
+                this._oEditDialog = new Dialog({
+                    title: "Update Project",
+                    type: "Message",
+                    contentWidth: "500px",
+                    content: [
+                        new Label({ text: "Project Name", required: true }),
+                        new Input({ value: "{edit>/ProjectName}" }),
+                        new Label({ text: "Type", required: true }),
+                        new Select({
+                            selectedKey: "{edit>/ProjectType}",
+                            width: "100%",
+                            items: [
+                                new Item({ key: "Road", text: "Road" }),
+                                new Item({ key: "Bridge", text: "Bridge" }),
+                                new Item({ key: "Building", text: "Building" }),
+                                new Item({ key: "Tunnel", text: "Tunnel" })
+                            ]
+                        }),
+                        new Label({ text: "Location" }),
+                        new Input({ value: "{edit>/Location}" }),
+                        new Label({ text: "Timeline" }),
+                        new HBox({
+                            items: [
+                                new DatePicker({ value: "{edit>/StartDate}", valueFormat:"yyyy-MM-dd", displayFormat:"yyyy-MM-dd", width: "100%" }),
+                                new Label({ text: "-", width: "2rem", textAlign: "Center" }),
+                                new DatePicker({ value: "{edit>/EndDate}", valueFormat:"yyyy-MM-dd", displayFormat:"yyyy-MM-dd", width: "100%" })
+                            ]
+                        })
+                    ],
+                    beginButton: new Button({ text: "Save", type: "Emphasized", press: function() { that._doUpdateProject(); } }),
+                    endButton: new Button({ text: "Cancel", press: function() { that._oEditDialog.close(); } })
+                });
+            }
+            this._oEditDialog.setModel(oEditModel, "edit");
+            this._oEditDialog.open();
         },
-        
-        onApproveStructure: function() {},
-        onRejectStructure: function() {},
-        onConfirmCheck: function() {}
+
+        _doUpdateProject: function() {
+            var oEditModel = this._oEditDialog.getModel("edit");
+            var oUpdatedData = oEditModel.getData();
+            var oMainModel = this.getView().getModel("mock");
+            oMainModel.setProperty(this._sEditPath, oUpdatedData);
+            MessageToast.show("Project updated!");
+            this._oEditDialog.close();
+        }
     });
 });

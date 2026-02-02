@@ -1,1 +1,108 @@
-/* Enter your custom styles here */
+/* Container của mỗi tháng trên Header */
+.gantt-header-cell {
+    border-right: 1px solid #d9d9d9;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f2f2f2;
+    box-sizing: border-box;
+    overflow: hidden; 
+}
+
+/* Text Tên tháng (Jan '23) */
+.gantt-header-label-text {
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: clip; 
+    font-size: 11px !important; /* Font nhỏ lại chút để vừa ô */
+    color: #333;
+}
+
+/* Lưới nền của phần Body */
+.gantt-cell-container {
+    height: 100%;
+    /* Chỉ kẻ vạch dọc mờ ngăn cách các tháng (tùy chọn) hoặc để trơn cho đỡ rối */
+    /* Ở đây ta chỉ dùng border-left để ngăn cách project start */
+    border-left: 1px solid #ccc; 
+    
+    /* Mẹo: Với pixel nhỏ (2.5px), ta không nên vẽ grid từng ngày vì sẽ bị đen kịt */
+    /* Ta chỉ vẽ grid mỗi tuần (khoảng 17.5px) hoặc để trơn */
+    background-image: linear-gradient(to right, #f0f0f0 1px, transparent 1px);
+    background-size: 17.5px 100%; /* Kẻ vạch mỗi 7 ngày (2.5 * 7) cho thoáng */
+    
+    padding: 0 !important;
+}
+
+/* Thanh Task */
+.gantt-bar-task {
+    background-color: #0070f2;
+    height: 10px; /* Nhỏ lại chút cho thanh thoát */
+    border-radius: 2px;
+    cursor: pointer;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+/* Thanh Phase */
+.gantt-bar-phase {
+    height: 8px;
+    border-top: 2px solid #444;
+    margin-top: 15px;
+    position: relative;
+}
+.gantt-bar-phase::before, .gantt-bar-phase::after {
+    content: ''; position: absolute; top: 0; width: 2px; height: 5px; background-color: #444;
+}
+.gantt-bar-phase::before { left: 0; }
+.gantt-bar-phase::after { right: 0; }
+
+.font-bold { font-weight: bold; }
+
+/* --- TỐI ƯU INPUT/TEXT --- */
+.small-font-input .sapMInputBaseInner,
+.small-font-input input,
+.small-font-text {
+    font-size: 11px !important;
+    font-weight: 500;
+}
+
+.small-date-picker .sapMInputBaseInner {
+    font-size: 11px !important;
+    padding-left: 4px; padding-right: 4px;
+}
+.small-date-picker .sapUiIcon {
+    font-size: 12px; width: 1.5rem;
+}
+
+.sapUiSizeCompact .sapUiTableTreeIcon {
+    background-position: center; background-size: 14px;
+}
+
+/* --- XỬ LÝ GIAO DIỆN RỘNG (GIỮ NGUYÊN TỪ PHẦN TRƯỚC) --- */
+.sapMPage, .sapMPageScroll, .sapUxAPObjectPageWrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+}
+
+.myCustomWideContent {
+    width: 80% !important;       
+    margin-left: auto !important;
+    margin-right: auto !important; 
+    padding: 0 !important;       
+}
+
+.sapMITBContent {
+    padding: 0.5rem 0 !important; 
+}
+
+#wbsTreeTable {
+    width: 100% !important;
+}
+
+.dayLabelSmall {
+    font-size: 9px;
+    overflow: visible; /* Cho phép chữ tràn ra ngoài chiều rộng 10px */
+    white-space: nowrap;
+    display: inline-block;
+}

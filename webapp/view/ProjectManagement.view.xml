@@ -4,86 +4,51 @@
     xmlns="sap.m"
     xmlns:core="sap.ui.core">
     
-    <Page id="pageProjectManagement" title="Project &amp; Site Management" showNavButton="false">
+    <Page id="pageProjectManagement" title="Project List" showNavButton="false" class="myCustomWideContent">
         <content>
-            <IconTabBar id="idTopMenuProject" select=".onTabSelect" selectedKey="project" expandable="false" headerBackgroundDesign="Transparent">
-                <items>
-                    
-                    <IconTabFilter text="Project" key="project">
-                        <VBox class="sapUiSmallMargin">
-                            </VBox>
-
-                        <Table id="idProjectsTable" items="{mock>/Projects}" growing="true" growingThreshold="10" mode="None"> 
-                            <headerToolbar>
-                                <OverflowToolbar>
-                                    <Title text="Project Database" level="H2"/>
-                                    <ToolbarSpacer/>
-                                    <SearchField width="20%" placeholder="Find..."/>
-                                    <Button icon="sap-icon://add" text="Quick Create" type="Emphasized" visible="{userInfo>/canCreateProject}" press=".onAddProject"/>
-                                </OverflowToolbar>
-                            </headerToolbar>
-                            <columns>
-                                <Column width="5rem"><Text text="Project ID" /></Column>
-                                <Column width="14rem"><Text text="Project Name" /></Column>
-                                <Column minScreenWidth="Tablet" demandPopin="true"><Text text="Type" /></Column>
-                                <Column width="12rem" minScreenWidth="Tablet" demandPopin="true"><Text text="Location" /></Column>
-                                <Column minScreenWidth="Tablet" demandPopin="true"><Text text="Start Date" /></Column>
-                                <Column minScreenWidth="Tablet" demandPopin="true"><Text text="Est. End Date" /></Column>
-                                <Column hAlign="Center"><Text text="Status" /></Column>
-                                <Column width="4rem" hAlign="End"><Text text="" /></Column>
-                            </columns>
-                            <items>
-                                <ColumnListItem type="Navigation" press=".onPressProject">
-                                    <cells>
-                                        <ObjectIdentifier title="{mock>ProjectID}"/>
-                                        
-                                        <Link 
-                                            text="{mock>ProjectName}" 
-                                            wrapping="false" 
-                                            press=".onShowFullText" />
-                                        
-                                        <Text text="{path: 'mock>ProjectType', formatter: '.formatProjectType'}" />
-                                        
-                                        <Link 
-                                            text="{mock>Location}" 
-                                            wrapping="false" 
-                                            press=".onShowFullText"/>
-
-                                        <Text text="{mock>StartDate}"/>
-                                        <Text text="{mock>EndDate}"/>
-                                        
-                                        <ObjectStatus 
-                                            text="{mock>Status}" 
-                                            state="{path: 'mock>Status', formatter: '.formatStatusState'}" 
-                                            icon="{= ${mock>Status} === 'Closed' ? 'sap-icon://locked' : '' }"
-                                        />
-                                        
-                                        <HBox justifyContent="End">
-                                            <Button icon="sap-icon://delete" type="Transparent" tooltip="Delete" visible="{userInfo>/canCreateProject}" press=".onDeleteProject"/> 
-                                        </HBox>
-                                    </cells>
-                                </ColumnListItem>
-                            </items>
-                        </Table>
-                    </IconTabFilter>
-
-                    <IconTabFilter text="WBS" key="wbs">
-                        <Text text="WBS Module content goes here..." class="sapUiMediumMargin"/>
-                    </IconTabFilter>
-
-                    <IconTabFilter text="Location" key="location">
-                         <Text text="Location Map content goes here..." class="sapUiMediumMargin"/>
-                    </IconTabFilter>
-
-                    <IconTabFilter text="Daily Log" key="dailyLog">
-                         </IconTabFilter>
-
-                    <IconTabFilter text="Report" key="report">
-                         <Text text="Report content goes here..." class="sapUiMediumMargin"/>
-                    </IconTabFilter>
-
-                </items>
-            </IconTabBar>
+            <VBox class="sapUiSmallMargin">
+                <Table id="idProjectsTable" items="{mock>/Projects}" growing="true" growingThreshold="10" mode="None"> 
+                    <headerToolbar>
+                        <OverflowToolbar>
+                            <Title text="Project Database" level="H2"/>
+                            <ToolbarSpacer/>
+                            <SearchField width="20%" placeholder="Find..."/>
+                            <Button icon="sap-icon://add" text="Create Project" type="Emphasized" visible="{userInfo>/canCreateProject}" press=".onAddProject"/>
+                        </OverflowToolbar>
+                    </headerToolbar>
+                    <columns>
+                        <Column width="5rem"><Text text="Project ID" /></Column>
+                        <Column width="14rem"><Text text="Project Name" /></Column>
+                        <Column minScreenWidth="Tablet" demandPopin="true"><Text text="Type" /></Column>
+                        <Column width="12rem" minScreenWidth="Tablet" demandPopin="true"><Text text="Location" /></Column>
+                        <Column minScreenWidth="Tablet" demandPopin="true"><Text text="Start Date" /></Column>
+                        <Column minScreenWidth="Tablet" demandPopin="true"><Text text="Est. End Date" /></Column>
+                        <Column hAlign="Center"><Text text="Status" /></Column>
+                        <Column width="9rem" hAlign="End"><Text text="Action" /></Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem vAlign="Middle" type="Navigation" press=".onPressProject">
+                            <cells>
+                                <ObjectIdentifier title="{mock>ProjectID}"/>
+                                <Text text="{mock>ProjectName}" wrapping="false" />
+                                <Text text="{path: 'mock>ProjectType', formatter: '.formatProjectType'}" />
+                                <Text text="{mock>Location}" wrapping="false"/>
+                                <Text text="{mock>StartDate}"/>
+                                <Text text="{mock>EndDate}"/>
+                                <ObjectStatus 
+                                    text="{path: 'mock>Status', formatter: '.formatStatusText'}" 
+                                    state="{path: 'mock>Status', formatter: '.formatStatusState'}" 
+                                    icon="{= ${mock>Status} === 'CLOSED' ? 'sap-icon://locked' : '' }"
+                                />
+                                <HBox justifyContent="End">
+                                    <Button icon="sap-icon://edit" type="Transparent" tooltip="Edit" visible="{userInfo>/canCreateProject}" press=".onEditProject" class="sapUiTinyMarginEnd"/> 
+                                    <Button icon="sap-icon://delete" type="Transparent" tooltip="Delete" visible="{userInfo>/canCreateProject}" press=".onDeleteProject"/> 
+                                </HBox>
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+            </VBox>
         </content>
     </Page>
 </mvc:View>

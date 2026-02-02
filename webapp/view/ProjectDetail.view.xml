@@ -2,62 +2,50 @@
     controllerName="com.bts.zbts.controller.ProjectDetail"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
-    xmlns:t="sap.ui.table"> <Page title="Project Detail Structure" showNavButton="true" navButtonPress=".onNavBack">
+    xmlns:core="sap.ui.core">
+    
+    <Page title="Project Detail Structure" showNavButton="true" navButtonPress=".onNavBack" enableScrolling="true" class="myCustomWideContent">
         <content>
-            
-            <ObjectHeader
-                title="{viewData>/ProjectName}"
-                number="{viewData>/Status}"
-                numberState="{viewData>/StatusState}"
-                intro="{viewData>/ProjectID}">
-                <attributes>
-                    <ObjectAttribute text="Location: {viewData>/Location}" />
-                    <ObjectAttribute text="PM: {viewData>/Manager}" />
-                </attributes>
-            </ObjectHeader>
+            <IconTabBar id="idDetailTabBar" expanded="true" >
+                <items>
+                    
+                    <IconTabFilter icon="sap-icon://hint" text="Overview" key="info">
+                        <core:Fragment fragmentName="com.bts.zbts.view.fragments.Overview" type="XML" />
+                    </IconTabFilter>
 
-            <Panel headerText="Work Breakdown Structure (WBS)" 
-                   visible="{viewConfig>/visible/wbsSection}"
-                   height="100%">
-                
-                <t:TreeTable
-                    id="TreeTableBasic"
-                    rows="{path:'viewData>/WBS', parameters: {arrayNames:['children']}}"
-                    selectionMode="None"
-                    enableColumnReordering="false">
-                    <t:columns>
-                        <t:Column width="20rem"><Label text="Task Name"/><t:template><Text text="{viewData>TaskName}"/></t:template></t:Column>
-                        <t:Column width="6rem"><Label text="Type"/><t:template><Text text="{viewData>Type}"/></t:template></t:Column>
-                        <t:Column><Label text="Status"/><t:template><Text text="{viewData>Status}"/></t:template></t:Column>
-                    </t:columns>
-                </t:TreeTable>
-            </Panel>
+                    <IconTabFilter icon="sap-icon://tree" text="WBS" key="wbs">
+                        <core:Fragment fragmentName="com.bts.zbts.view.fragments.WBS" type="XML" />
+                    </IconTabFilter>
+
+                    <IconTabFilter icon="sap-icon://map" text="Location" key="loc">
+                         <core:Fragment fragmentName="com.bts.zbts.view.fragments.Location" type="XML" />
+                    </IconTabFilter>
+
+                    <IconTabFilter icon="sap-icon://form" text="Daily Log" key="log">
+                         <core:Fragment fragmentName="com.bts.zbts.view.fragments.DailyLog" type="XML" />
+                    </IconTabFilter>
+
+                    <IconTabFilter icon="sap-icon://manager-insight" text="Report" key="rep">
+                         <core:Fragment fragmentName="com.bts.zbts.view.fragments.Report" type="XML" />
+                    </IconTabFilter>
+
+                </items>
+            </IconTabBar>
 
         </content>
 
         <footer>
             <OverflowToolbar>
                 <ToolbarSpacer/>
-                
-                <Button text="Approve (Commander)" 
-                        type="Accept" 
-                        visible="{viewConfig>/visible/btnCommanderApprove}"
-                        press=".onCommanderApprove"/>
-                
-                <Button text="Reject (Commander)" 
-                        type="Reject" 
-                        visible="{viewConfig>/visible/btnCommanderApprove}"
-                        press=".onReject"/>
-
-                <Button text="Verify &amp; Approve (Consultant)" 
-                        type="Accept" 
-                        visible="{viewConfig>/visible/btnConsultantApprove}"
-                        press=".onConsultantApprove"/>
-
-                <Button text="Reject (Consultant)" 
-                        type="Reject" 
-                        visible="{viewConfig>/visible/btnConsultantApprove}"
-                        press=".onReject"/>
+                <Button text="Save" 
+                icon="sap-icon://save" 
+                type="Emphasized" 
+                press=".onSaveProject"
+                visible="true" /> <Button text="Approve (Commander)" type="Accept" visible="{viewConfig>/visible/btnCommanderApprove}" press=".onCommanderApprove"/>
+                <Button text="Approve (Commander)" type="Accept" visible="{viewConfig>/visible/btnCommanderApprove}" press=".onCommanderApprove"/>
+                <Button text="Reject (Commander)" type="Reject" visible="{viewConfig>/visible/btnCommanderApprove}" press=".onReject"/>
+                <Button text="Verify &amp; Approve (Consultant)" type="Accept" visible="{viewConfig>/visible/btnConsultantApprove}" press=".onConsultantApprove"/>
+                <Button text="Reject (Consultant)" type="Reject" visible="{viewConfig>/visible/btnConsultantApprove}" press=".onReject"/>
             </OverflowToolbar>
         </footer>
     </Page>
