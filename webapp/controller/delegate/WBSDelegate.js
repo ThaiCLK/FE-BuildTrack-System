@@ -5,9 +5,9 @@ sap.ui.define([
     "use strict";
 
     const CONFIG = {
-        PIXELS_PER_DAY: 4, // Tăng lên 20px để hiển thị số ngày rõ ràng hơn
+        PIXELS_PER_DAY: 4, 
         ROW_HEIGHT: "32px",
-        STEP_LABEL: 7 // Hiển thị nhãn cho mọi ngày (01, 02, 03...)
+        STEP_LABEL: 7 
     };
 
     return BaseObject.extend("com.bts.zbts.controller.delegate.WBSDelegate", {

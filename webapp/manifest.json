@@ -10,12 +10,15 @@
     "title": "{{appTitle}}",
     "description": "{{appDescription}}",
     "resources": "resources.json",
+    
     "sourceTemplate": {
       "id": "@sap/generator-fiori:basic",
       "version": "1.20.1",
       "toolsId": "e8e36782-16c5-4089-b328-8539fa8ffcaa"
     },
+
     "dataSources": {
+      "comment_1": "Đây là nơi khai báo các kết nối đến Server Backend (SAP Gateway)",
       "mainService": {
         "uri": "/sap/opu/odata/sap/Z_BTS_ODATA_SRV/",
         "type": "OData",
@@ -27,6 +30,7 @@
       }
     }
   },
+
   "sap.ui": {
     "technology": "UI5",
     "icons": {
@@ -43,9 +47,10 @@
       "phone": true
     }
   },
+
   "sap.ui5": {
     "config": {
-        "fullWidth": true
+        "fullWidth": true 
     },
     "resources": {
         "css": [
@@ -54,21 +59,25 @@
             }
         ]
     },
+
     "flexEnabled": false,
+
     "dependencies": {
       "minUI5Version": "1.108.33",
       "libs": {
         "sap.m": {},
         "sap.ui.core": {},
         "sap.ui.layout": {},
-        "sap.ui.table": {},
-        "sap.gantt": {}
+        "sap.ui.table": {}, 
+        "sap.gantt": {}     
       }
     },
+
     "contentDensities": {
       "compact": true,
       "cozy": true
     },
+
     "models": {
       "i18n": {
         "type": "sap.ui.model.resource.ResourceModel",
@@ -76,17 +85,20 @@
           "bundleName": "com.bts.zbts.i18n.i18n"
         }
       },
+
       "": {
-        "dataSource": "mainService",
+        "comment_2": "MODEL ODATA (DỮ LIỆU THẬT) === Tên Model là chuỗi rỗng -> Đây là Default Model. Khi bạn viết binding path là {/ProjectSet}, nó sẽ tìm trong Model này.",
+        "dataSource": "mainService", 
         "preload": true,
         "settings": {
-          "defaultBindingMode": "TwoWay",
-          "useBatch": false
+          "defaultBindingMode": "TwoWay", 
+          "useBatch": false 
         }
       },
+
       "mock": {
-        "type": "sap.ui.model.json.JSONModel",
-        "uri": "model/mock_projects.json"
+        "type": "sap.ui.model.json.JSONModel", 
+        "uri": "model/mock_projects.json"      
       }
     },
     "routing": {
@@ -99,8 +111,10 @@
         "controlId": "app",
         "clearControlAggregation": false
       },
-      "routes": [
+      
+      "routes": [      
         {
+          "comment_3": "Định nghĩa URL trên trình duyệt",
           "name": "RouteProjectManagement",
           "pattern": "",
           "target": [
@@ -109,26 +123,29 @@
         },
         {
           "name": "RouteDailyLog",
-          "pattern": "daily-log",
+          "pattern": "daily-log", 
           "target": [
             "TargetDailyLog"
           ]
         },
         {
           "name": "RouteProjectDetail",
-          "pattern": "project/{projectID}",
+          "pattern": "project/{projectID}", 
           "target": [
             "TargetProjectDetail"
           ]
         }
       ],
+
       "targets": {
+        "comment_4": "Định nghĩa View nào sẽ được hiển thị",
         "TargetProjectManagement": {
           "viewType": "XML",
           "transition": "slide",
           "clearControlAggregation": false,
           "viewId": "ProjectManagement",
-          "viewName": "ProjectManagement"
+          "comment_5": "Tìm file ProjectManagement.view.xml",
+          "viewName": "ProjectManagement" 
         },
         "TargetDailyLog": {
           "viewType": "XML",
@@ -146,6 +163,7 @@
         }
       }
     },
+
     "rootView": {
       "viewName": "com.bts.zbts.view.App",
       "type": "XML",

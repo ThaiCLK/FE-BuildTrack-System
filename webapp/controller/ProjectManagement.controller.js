@@ -17,46 +17,45 @@ sap.ui.define([
 
     return Controller.extend("com.bts.zbts.controller.ProjectManagement", {
 
-        onInit: function () {
-            // 1. Load dữ liệu giả
-            var oModel = new JSONModel();
-            oModel.loadData(sap.ui.require.toUrl("com/bts/zbts/model/mock_projects.json"));
+        // onInit: function () {
+        //     // 1. Load dữ liệu giả
+        //     var oModel = new JSONModel();
+        //     oModel.loadData(sap.ui.require.toUrl("com/bts/zbts/model/mock_projects.json"));
             
-            // Chạy logic kiểm tra ngày sau khi load data xong
-            oModel.attachRequestCompleted(function() {
-                this._checkAutoCloseProjects(oModel);
-            }.bind(this));
+        //     // Chạy logic kiểm tra ngày sau khi load data xong
+        //     oModel.attachRequestCompleted(function() {
+        //         this._checkAutoCloseProjects(oModel);
+        //     }.bind(this));
 
-            this.getView().setModel(oModel, "mock");
-        },
+        //     this.getView().setModel(oModel, "mock");
+        // },
 
-        // --- ĐÃ BỎ: _onRouteMatched và onTabSelect vì không còn TabBar ở màn hình này ---
 
-        // --- LOGIC TỰ ĐỘNG ĐÓNG DỰ ÁN (AUTO-CLOSE) ---
-        _checkAutoCloseProjects: function(oModel) {
-            var oData = oModel.getData();
-            if (!oData || !oData.Projects) return;
+        // // --- LOGIC TỰ ĐỘNG ĐÓNG DỰ ÁN (AUTO-CLOSE) ---
+        // _checkAutoCloseProjects: function(oModel) {
+        //     var oData = oModel.getData();
+        //     if (!oData || !oData.Projects) return;
 
-            var aProjects = oData.Projects;
-            var oToday = new Date();
-            var bChanged = false;
+        //     var aProjects = oData.Projects;
+        //     var oToday = new Date();
+        //     var bChanged = false;
 
-            aProjects.forEach(function(prj) {
-                if (!prj.EndDate) return;
-                var dEnd = new Date(prj.EndDate);
+        //     aProjects.forEach(function(prj) {
+        //         if (!prj.EndDate) return;
+        //         var dEnd = new Date(prj.EndDate);
                 
-                // Luôn so sánh và gán bằng "CLOSED" (in hoa)
-                if (oToday > dEnd && prj.Status !== "CLOSED") {
-                    prj.Status = "CLOSED"; 
-                    prj.StatusText = "Closed (Expired)"; 
-                    bChanged = true;
-                }
-            });
+        //         // Luôn so sánh và gán bằng "CLOSED" (in hoa)
+        //         if (oToday > dEnd && prj.Status !== "CLOSED") {
+        //             prj.Status = "CLOSED"; 
+        //             prj.StatusText = "Closed (Expired)"; 
+        //             bChanged = true;
+        //         }
+        //     });
 
-            if (bChanged) {
-                oModel.refresh();
-            }
-        },
+        //     if (bChanged) {
+        //         oModel.refresh();
+        //     }
+        // },
 
         // Formatters
         formatStatusText: function(sStatus) {
@@ -82,13 +81,11 @@ sap.ui.define([
 
         // --- NAVIGATION ---
         onPressProject: function(oEvent) {
-            var sProjectID = oEvent.getSource().getBindingContext("mock").getProperty("ProjectID");
+            // var sProjectID = oEvent.getSource().getBindingContext("mock").getProperty("ProjectID");
+            // Bỏ chữ "mock" đi để dùng model OData mặc định
+            var sProjectID = oEvent.getSource().getBindingContext().getProperty("ProjectID");
             this.getOwnerComponent().getRouter().navTo("RouteProjectDetail", { projectID: sProjectID });
         },
-
-        // --- CÁC LOGIC CÒN LẠI (Create, Edit, Delete) GIỮ NGUYÊN ---
-        // (Copy nguyên phần logic Create, Edit, Delete từ code cũ của bạn vào đây)
-        // ... (onAddProject, _doCreateProject, onEditProject, _doUpdateProject, onDeleteProject...)
         
         onAddProject: function () {
             // ... (Code cũ của bạn)
@@ -147,7 +144,6 @@ sap.ui.define([
         },
 
         _doCreateProject: function () {
-            // ... (Giữ nguyên logic tạo dự án cũ của bạn)
             var sName = sap.ui.getCore().byId("newProjectName").getValue();
             var sType = sap.ui.getCore().byId("newProjectType").getSelectedKey();
             var sLoc = sap.ui.getCore().byId("newLocation").getValue();
@@ -216,20 +212,25 @@ sap.ui.define([
         },
 
         onDeleteProject: function(oEvent) {
-             var oModel = this.getView().getModel("mock");
-             var aProjects = oModel.getProperty("/Projects");
-             var sPath = oEvent.getSource().getParent().getParent().getBindingContext("mock").getPath();
-             var iIndex = parseInt(sPath.split("/").pop());
-             
-             MessageBox.confirm("Delete this project?", {
-                onClose: function(oAction) {
-                    if (oAction === "OK") { 
-                        aProjects.splice(iIndex, 1); 
-                        oModel.refresh(); 
+    var oModel = this.getView().getModel();
+    // Lấy đường dẫn của dòng được chọn (VD: /ProjectSet(guid'...'))
+    var sPath = oEvent.getSource().getBindingContext().getPath(); 
+    
+    MessageBox.confirm("Delete this project?", {
+        onClose: function(oAction) {
+            if (oAction === "OK") { 
+                oModel.remove(sPath, {
+                    success: function() {
+                        MessageToast.show("Deleted successfully");
+                    },
+                    error: function() {
+                        MessageBox.error("Failed to delete.");
                     }
-                }
-            });
-        },
+                });
+            }
+        }
+    });
+},
         
         onEditProject: function(oEvent) {
             var that = this;
@@ -237,6 +238,8 @@ sap.ui.define([
             var oRowData = oContext.getObject();
             this._sEditPath = oContext.getPath();
             var oCloneData = JSON.parse(JSON.stringify(oRowData));
+            if (oCloneData.StartDate) oCloneData.StartDate = new Date(oCloneData.StartDate);
+            if (oCloneData.EndDate) oCloneData.EndDate = new Date(oCloneData.EndDate);
             var oEditModel = new JSONModel(oCloneData);
 
             if (!this._oEditDialog) {
@@ -278,12 +281,29 @@ sap.ui.define([
         },
 
         _doUpdateProject: function() {
-            var oEditModel = this._oEditDialog.getModel("edit");
-            var oUpdatedData = oEditModel.getData();
-            var oMainModel = this.getView().getModel("mock");
-            oMainModel.setProperty(this._sEditPath, oUpdatedData);
+    var that = this;
+    var oEditModel = this._oEditDialog.getModel("edit");
+    var oUpdatedData = oEditModel.getData();
+    var oModel = this.getView().getModel(); // Model OData
+
+    // Chỉ gửi những trường cần sửa
+    var oPayload = {
+        ProjectName: oUpdatedData.ProjectName,
+        ProjectType: oUpdatedData.ProjectType,
+        StartDate: oUpdatedData.StartDate,
+        EndDate: oUpdatedData.EndDate,
+        Location: oUpdatedData.Location
+    };
+
+    oModel.update(this._sEditPath, oPayload, {
+        success: function() {
             MessageToast.show("Project updated!");
-            this._oEditDialog.close();
+            that._oEditDialog.close();
+        },
+        error: function() {
+            MessageBox.error("Update failed.");
         }
+    });
+}
     });
 });
