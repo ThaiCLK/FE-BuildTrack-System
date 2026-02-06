@@ -143,74 +143,112 @@ sap.ui.define([
             this._oCreateDialog.open();
         },
 
+        // _doCreateProject: function () {
+        //     var sName = sap.ui.getCore().byId("newProjectName").getValue();
+        //     var sType = sap.ui.getCore().byId("newProjectType").getSelectedKey();
+        //     var sLoc = sap.ui.getCore().byId("newLocation").getValue();
+        //     var sStart = sap.ui.getCore().byId("newStartDate").getValue();
+        //     var sEnd = sap.ui.getCore().byId("newEndDate").getValue();
+
+        //     if (!sName) { MessageToast.show("Name is required!"); return; }
+        //     if (!sStart) sStart = new Date().toISOString().slice(0, 10);
+        //     if (!sEnd) {
+        //         var d = new Date(sStart);
+        //         d.setFullYear(d.getFullYear() + 1);
+        //         sEnd = d.toISOString().slice(0, 10);
+        //     }
+
+        //     var sInitialStatus = "PLANNING";
+        //     var sInitialStatusText = "Planning";
+        //     var oEndDate = new Date(sEnd);
+        //     var oToday = new Date();
+        //     oToday.setHours(0, 0, 0, 0); 
+        //     if (oEndDate < oToday) { sInitialStatus = "CLOSED"; sInitialStatusText = "Closed"; }
+
+        //     var oViewModel = this.getView().getModel("mock");
+        //     var aCurrentProjects = oViewModel ? oViewModel.getProperty("/Projects") : [];
+        //     var iMaxID = 0;
+        //     if (aCurrentProjects) {
+        //         aCurrentProjects.forEach(function(prj) {
+        //             if (prj.ProjectID && prj.ProjectID.startsWith("PRJ-")) {
+        //                 var iNum = parseInt(prj.ProjectID.split("-")[1], 10);
+        //                 if (iNum > iMaxID) iMaxID = iNum;
+        //             }
+        //         });
+        //     }
+        //     var sNextID = "PRJ-" + ("000" + (iMaxID + 1)).slice(-3);
+        //     var oUserModel = this.getOwnerComponent().getModel("userInfo");
+        //     var sManagerName = oUserModel ? (oUserModel.getProperty("/name") || "Admin User") : "Admin User";
+
+        //     var oNewProject = {
+        //         "ProjectID": sNextID, "ProjectName": sName, "ProjectType": sType, "Location": sLoc || "TBD",
+        //         "StartDate": sStart, "EndDate": sEnd, "Status": sInitialStatus, "StatusText": sInitialStatusText,
+        //         "Manager": sManagerName, "WBS": []
+        //     };
+
+        //     var oComponentModel = this.getOwnerComponent().getModel("mock");
+        //     if (oComponentModel) {
+        //         var aCompProjects = oComponentModel.getProperty("/Projects");
+        //         if (!aCompProjects) aCompProjects = [];
+        //         var bExists = aCompProjects.some(function(p){ return p.ProjectID === sNextID; });
+        //         if (!bExists) {
+        //             aCompProjects.unshift(oNewProject);
+        //             oComponentModel.setProperty("/Projects", aCompProjects);
+        //             oComponentModel.refresh(true); 
+        //         }
+        //     }
+        //     if (oViewModel && oViewModel !== oComponentModel) {
+        //         var aViewProjects = oViewModel.getProperty("/Projects");
+        //         if (!aViewProjects) aViewProjects = [];
+        //         var bExistsView = aViewProjects.some(function(p){ return p.ProjectID === sNextID; });
+        //         if (!bExistsView) {
+        //             aViewProjects.unshift(oNewProject);
+        //             oViewModel.setProperty("/Projects", aViewProjects);
+        //             oViewModel.refresh(true);
+        //         }
+        //     }
+        //     this._oCreateDialog.close();
+        //     MessageToast.show("Created Project " + sNextID + " successfully!");
+        // },
+
         _doCreateProject: function () {
-            var sName = sap.ui.getCore().byId("newProjectName").getValue();
-            var sType = sap.ui.getCore().byId("newProjectType").getSelectedKey();
-            var sLoc = sap.ui.getCore().byId("newLocation").getValue();
-            var sStart = sap.ui.getCore().byId("newStartDate").getValue();
-            var sEnd = sap.ui.getCore().byId("newEndDate").getValue();
+    var that = this;
+    // 1. Lấy dữ liệu từ các Input (Giữ nguyên code cũ của bạn)
+    var sName = sap.ui.getCore().byId("newProjectName").getValue();
+    var sType = sap.ui.getCore().byId("newProjectType").getSelectedKey();
+    var sStart = sap.ui.getCore().byId("newStartDate").getValue(); // Dạng chuỗi "yyyy-MM-dd"
+    var sEnd = sap.ui.getCore().byId("newEndDate").getValue();
+    var sLoc = sap.ui.getCore().byId("newLocation").getValue();
 
-            if (!sName) { MessageToast.show("Name is required!"); return; }
-            if (!sStart) sStart = new Date().toISOString().slice(0, 10);
-            if (!sEnd) {
-                var d = new Date(sStart);
-                d.setFullYear(d.getFullYear() + 1);
-                sEnd = d.toISOString().slice(0, 10);
-            }
+    if (!sName) { MessageToast.show("Name is required!"); return; }
 
-            var sInitialStatus = "PLANNING";
-            var sInitialStatusText = "Planning";
-            var oEndDate = new Date(sEnd);
-            var oToday = new Date();
-            oToday.setHours(0, 0, 0, 0); 
-            if (oEndDate < oToday) { sInitialStatus = "CLOSED"; sInitialStatusText = "Closed"; }
+    // 2. Chuẩn bị dữ liệu để gửi đi (Payload)
+    // Lưu ý: OData cần đối tượng Date, không phải String
+    var oPayload = {
+        ProjectName: sName,
+        ProjectType: sType,
+        // Backend tự sinh ID nên không cần truyền ProjectID, hoặc truyền chuỗi rỗng
+        Status: "PLANNING", 
+        // Chuyển chuỗi ngày thành đối tượng Date
+        StartDate: sStart ? new Date(sStart) : new Date(),
+        EndDate: sEnd ? new Date(sEnd) : null
+        // Nếu Metadata có trường Location hoặc Address thì thêm vào:
+        // Address: sLoc 
+    };
 
-            var oViewModel = this.getView().getModel("mock");
-            var aCurrentProjects = oViewModel ? oViewModel.getProperty("/Projects") : [];
-            var iMaxID = 0;
-            if (aCurrentProjects) {
-                aCurrentProjects.forEach(function(prj) {
-                    if (prj.ProjectID && prj.ProjectID.startsWith("PRJ-")) {
-                        var iNum = parseInt(prj.ProjectID.split("-")[1], 10);
-                        if (iNum > iMaxID) iMaxID = iNum;
-                    }
-                });
-            }
-            var sNextID = "PRJ-" + ("000" + (iMaxID + 1)).slice(-3);
-            var oUserModel = this.getOwnerComponent().getModel("userInfo");
-            var sManagerName = oUserModel ? (oUserModel.getProperty("/name") || "Admin User") : "Admin User";
-
-            var oNewProject = {
-                "ProjectID": sNextID, "ProjectName": sName, "ProjectType": sType, "Location": sLoc || "TBD",
-                "StartDate": sStart, "EndDate": sEnd, "Status": sInitialStatus, "StatusText": sInitialStatusText,
-                "Manager": sManagerName, "WBS": []
-            };
-
-            var oComponentModel = this.getOwnerComponent().getModel("mock");
-            if (oComponentModel) {
-                var aCompProjects = oComponentModel.getProperty("/Projects");
-                if (!aCompProjects) aCompProjects = [];
-                var bExists = aCompProjects.some(function(p){ return p.ProjectID === sNextID; });
-                if (!bExists) {
-                    aCompProjects.unshift(oNewProject);
-                    oComponentModel.setProperty("/Projects", aCompProjects);
-                    oComponentModel.refresh(true); 
-                }
-            }
-            if (oViewModel && oViewModel !== oComponentModel) {
-                var aViewProjects = oViewModel.getProperty("/Projects");
-                if (!aViewProjects) aViewProjects = [];
-                var bExistsView = aViewProjects.some(function(p){ return p.ProjectID === sNextID; });
-                if (!bExistsView) {
-                    aViewProjects.unshift(oNewProject);
-                    oViewModel.setProperty("/Projects", aViewProjects);
-                    oViewModel.refresh(true);
-                }
-            }
-            this._oCreateDialog.close();
-            MessageToast.show("Created Project " + sNextID + " successfully!");
+    // 3. Gọi OData Create
+    var oModel = this.getView().getModel(); // Lấy model OData
+    oModel.create("/ProjectSet", oPayload, {
+        success: function () {
+            MessageToast.show("Created successfully!");
+            that._oCreateDialog.close();
+            // Không cần refresh, OData Model tự cập nhật lại bảng
         },
-
+        error: function () {
+            MessageBox.error("Error creating project.");
+        }
+    });
+},
         onDeleteProject: function(oEvent) {
     var oModel = this.getView().getModel();
     // Lấy đường dẫn của dòng được chọn (VD: /ProjectSet(guid'...'))

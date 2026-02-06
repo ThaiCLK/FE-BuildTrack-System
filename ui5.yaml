@@ -9,7 +9,6 @@ server:
     - name: fiori-tools-proxy
       afterMiddleware: compression
       configuration:
-        # 1. QUAN TRỌNG: Đổi thành true để bỏ qua lỗi chứng chỉ bảo mật của server trường
         ignoreCertErrors: true 
         ui5:
           path:
@@ -19,8 +18,6 @@ server:
         backend:
           - path: /sap
             url: https://s35.gb.ucc.cit.tum.de
-            # 2. KHUYẾN NGHỊ: Thêm mã Client của bạn vào đây (Hỏi giảng viên xem client là bao nhiêu)
-            # Thường là '200', '400' hoặc '100'. Nếu không biết, hãy thử bỏ comment dòng dưới và sửa số
             client: '302'  
     - name: fiori-tools-appreload
       afterMiddleware: compression

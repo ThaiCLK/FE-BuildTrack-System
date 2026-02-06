@@ -20,7 +20,7 @@
     "dataSources": {
       "comment_1": "Đây là nơi khai báo các kết nối đến Server Backend (SAP Gateway)",
       "mainService": {
-        "uri": "/sap/opu/odata/sap/Z_BTS_ODATA_SRV/",
+        "uri": "/sap/opu/odata/sap/ZBT_CONSTRUCTION_SRV/",
         "type": "OData",
         "settings": {
           "annotations": [],
@@ -98,7 +98,7 @@
 
       "mock": {
         "type": "sap.ui.model.json.JSONModel", 
-        "uri": "model/mock_projects.json"      
+        "uri": "mockdata/mock_projects.json"      
       }
     },
     "routing": {

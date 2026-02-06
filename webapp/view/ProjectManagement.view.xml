@@ -7,7 +7,8 @@
     <Page id="pageProjectManagement" title="Project List" showNavButton="false" class="myCustomWideContent">
         <content>
             <VBox class="sapUiSmallMargin">
-                <Table id="idProjectsTable" items="{mock>/Projects}" growing="true" growingThreshold="10" mode="None"> 
+                <!-- <Table id="idProjectsTable" items="{/Projects}" growing="true" growingThreshold="10" mode="None">  -->
+                <Table id="idProjectsTable" items="{/ProjectSet}" growing="true" growingThreshold="10" mode="None"> 
                     <headerToolbar>
                         <OverflowToolbar>
                             <Title text="Project Database" level="H2"/>
@@ -29,16 +30,16 @@
                     <items>
                         <ColumnListItem vAlign="Middle" type="Navigation" press=".onPressProject">
                             <cells>
-                                <ObjectIdentifier title="{mock>ProjectID}"/>
-                                <Text text="{mock>ProjectName}" wrapping="false" />
-                                <Text text="{path: 'mock>ProjectType', formatter: '.formatProjectType'}" />
-                                <Text text="{mock>Location}" wrapping="false"/>
-                                <Text text="{mock>StartDate}"/>
-                                <Text text="{mock>EndDate}"/>
+                                <ObjectIdentifier title="{ProjectID}"/>
+                                <Text text="{ProjectName}" wrapping="false" />
+                                <Text text="{path: 'ProjectType', formatter: '.formatProjectType'}" />
+                                <Text text="{Location}" wrapping="false"/>
+                                <Text text="{StartDate}"/>
+                                <Text text="{EndDate}"/>
                                 <ObjectStatus 
-                                    text="{path: 'mock>Status', formatter: '.formatStatusText'}" 
-                                    state="{path: 'mock>Status', formatter: '.formatStatusState'}" 
-                                    icon="{= ${mock>Status} === 'CLOSED' ? 'sap-icon://locked' : '' }"
+                                    text="{path: 'Status', formatter: '.formatStatusText'}" 
+                                    state="{path: 'Status', formatter: '.formatStatusState'}" 
+                                    icon="{= ${Status} === 'CLOSED' ? 'sap-icon://locked' : '' }"
                                 />
                                 <HBox justifyContent="End">
                                     <Button icon="sap-icon://edit" type="Transparent" tooltip="Edit" visible="{userInfo>/canCreateProject}" press=".onEditProject" class="sapUiTinyMarginEnd"/> 

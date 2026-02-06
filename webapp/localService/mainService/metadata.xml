@@ -3,7 +3,7 @@
     xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"
     xmlns:sap="http://www.sap.com/Protocols/SAPData">
     <edmx:DataServices m:DataServiceVersion="2.0">
-        <Schema Namespace="Z_BTS_ODATA_SRV" xml:lang="en" sap:schema-version="1" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+        <Schema Namespace="ZBT_CONSTRUCTION_SRV" xml:lang="en" sap:schema-version="1" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
 
             <EntityType Name="Project" sap:content-version="1">
                 <Key>
@@ -27,8 +27,8 @@
                 <Property Name="UpdatedOn" Type="Edm.DateTime" Precision="7" sap:display-format="Date" sap:label="Updated On"/>
                 <Property Name="UpdatedAt" Type="Edm.Time" Precision="0" sap:label="Updated At"/>
 
-                <NavigationProperty Name="ToSite" Relationship="Z_BTS_ODATA_SRV.Project_Site_Assoc" FromRole="FromRole_Project" ToRole="ToRole_Site"/>
-                <NavigationProperty Name="ToWBS" Relationship="Z_BTS_ODATA_SRV.Project_WBS_Assoc" FromRole="FromRole_Project" ToRole="ToRole_WBS"/>
+                <NavigationProperty Name="ToSite" Relationship="ZBT_CONSTRUCTION_SRV.Project_Site_Assoc" FromRole="FromRole_Project" ToRole="ToRole_Site"/>
+                <NavigationProperty Name="ToWBS" Relationship="ZBT_CONSTRUCTION_SRV.Project_WBS_Assoc" FromRole="FromRole_Project" ToRole="ToRole_WBS"/>
             </EntityType>
 
             <EntityType Name="Site" sap:content-version="1">
@@ -51,8 +51,8 @@
                 <Property Name="UpdatedOn" Type="Edm.DateTime" Precision="7" sap:display-format="Date" sap:label="Updated On"/>
                 <Property Name="UpdatedAt" Type="Edm.Time" Precision="0" sap:label="Updated At"/>
 
-                <NavigationProperty Name="ToLocation" Relationship="Z_BTS_ODATA_SRV.Site_Location_Assoc" FromRole="FromRole_Site" ToRole="ToRole_Location"/>
-                <NavigationProperty Name="ToDailyLog" Relationship="Z_BTS_ODATA_SRV.Site_DailyLog_Assoc" FromRole="FromRole_Site" ToRole="ToRole_DailyLog"/>
+                <NavigationProperty Name="ToLocation" Relationship="ZBT_CONSTRUCTION_SRV.Site_Location_Assoc" FromRole="FromRole_Site" ToRole="ToRole_Location"/>
+                <NavigationProperty Name="ToDailyLog" Relationship="ZBT_CONSTRUCTION_SRV.Site_DailyLog_Assoc" FromRole="FromRole_Site" ToRole="ToRole_DailyLog"/>
             </EntityType>
 
             <EntityType Name="Location" sap:content-version="1">
@@ -119,7 +119,7 @@
                 <Property Name="UpdatedOn" Type="Edm.DateTime" Precision="7" sap:display-format="Date" sap:label="Updated On"/>
                 <Property Name="UpdatedAt" Type="Edm.Time" Precision="0" sap:label="Updated At"/>
 
-                <NavigationProperty Name="ToWBSPlan" Relationship="Z_BTS_ODATA_SRV.WBS_WBSPlan_Assoc" FromRole="FromRole_WBS" ToRole="ToRole_WBSPlan"/>
+                <NavigationProperty Name="ToWBSPlan" Relationship="ZBT_CONSTRUCTION_SRV.WBS_WBSPlan_Assoc" FromRole="FromRole_WBS" ToRole="ToRole_WBSPlan"/>
             </EntityType>
 
             <EntityType Name="WBSPlan" sap:content-version="1">
@@ -146,8 +146,8 @@
             </EntityType>
 
             <Association Name="Project_Site_Assoc">
-                <End Type="Z_BTS_ODATA_SRV.Project" Multiplicity="1" Role="FromRole_Project"/>
-                <End Type="Z_BTS_ODATA_SRV.Site" Multiplicity="*" Role="ToRole_Site"/>
+                <End Type="ZBT_CONSTRUCTION_SRV.Project" Multiplicity="1" Role="FromRole_Project"/>
+                <End Type="ZBT_CONSTRUCTION_SRV.Site" Multiplicity="*" Role="ToRole_Site"/>
                 <ReferentialConstraint>
                     <Principal Role="FromRole_Project"><PropertyRef Name="ProjectID"/></Principal>
                     <Dependent Role="ToRole_Site"><PropertyRef Name="ProjectID"/></Dependent>
@@ -155,8 +155,8 @@
             </Association>
 
             <Association Name="Project_WBS_Assoc">
-                <End Type="Z_BTS_ODATA_SRV.Project" Multiplicity="1" Role="FromRole_Project"/>
-                <End Type="Z_BTS_ODATA_SRV.WBS" Multiplicity="*" Role="ToRole_WBS"/>
+                <End Type="ZBT_CONSTRUCTION_SRV.Project" Multiplicity="1" Role="FromRole_Project"/>
+                <End Type="ZBT_CONSTRUCTION_SRV.WBS" Multiplicity="*" Role="ToRole_WBS"/>
                 <ReferentialConstraint>
                     <Principal Role="FromRole_Project"><PropertyRef Name="ProjectID"/></Principal>
                     <Dependent Role="ToRole_WBS"><PropertyRef Name="ProjectID"/></Dependent>
@@ -164,8 +164,8 @@
             </Association>
 
             <Association Name="Site_Location_Assoc">
-                <End Type="Z_BTS_ODATA_SRV.Site" Multiplicity="1" Role="FromRole_Site"/>
-                <End Type="Z_BTS_ODATA_SRV.Location" Multiplicity="*" Role="ToRole_Location"/>
+                <End Type="ZBT_CONSTRUCTION_SRV.Site" Multiplicity="1" Role="FromRole_Site"/>
+                <End Type="ZBT_CONSTRUCTION_SRV.Location" Multiplicity="*" Role="ToRole_Location"/>
                 <ReferentialConstraint>
                     <Principal Role="FromRole_Site"><PropertyRef Name="SiteID"/></Principal>
                     <Dependent Role="ToRole_Location"><PropertyRef Name="SiteID"/></Dependent>
@@ -173,8 +173,8 @@
             </Association>
 
             <Association Name="Site_DailyLog_Assoc">
-                <End Type="Z_BTS_ODATA_SRV.Site" Multiplicity="1" Role="FromRole_Site"/>
-                <End Type="Z_BTS_ODATA_SRV.DailyLog" Multiplicity="*" Role="ToRole_DailyLog"/>
+                <End Type="ZBT_CONSTRUCTION_SRV.Site" Multiplicity="1" Role="FromRole_Site"/>
+                <End Type="ZBT_CONSTRUCTION_SRV.DailyLog" Multiplicity="*" Role="ToRole_DailyLog"/>
                 <ReferentialConstraint>
                     <Principal Role="FromRole_Site"><PropertyRef Name="SiteID"/></Principal>
                     <Dependent Role="ToRole_DailyLog"><PropertyRef Name="SiteID"/></Dependent>
@@ -182,48 +182,48 @@
             </Association>
 
             <Association Name="WBS_WBSPlan_Assoc">
-                <End Type="Z_BTS_ODATA_SRV.WBS" Multiplicity="1" Role="FromRole_WBS"/>
-                <End Type="Z_BTS_ODATA_SRV.WBSPlan" Multiplicity="*" Role="ToRole_WBSPlan"/>
+                <End Type="ZBT_CONSTRUCTION_SRV.WBS" Multiplicity="1" Role="FromRole_WBS"/>
+                <End Type="ZBT_CONSTRUCTION_SRV.WBSPlan" Multiplicity="*" Role="ToRole_WBSPlan"/>
                 <ReferentialConstraint>
                     <Principal Role="FromRole_WBS"><PropertyRef Name="WbsID"/></Principal>
                     <Dependent Role="ToRole_WBSPlan"><PropertyRef Name="WbsID"/></Dependent>
                 </ReferentialConstraint>
             </Association>
 
-            <EntityContainer Name="Z_BTS_ODATA_SRV_Entities" m:IsDefaultEntityContainer="true" sap:supported-formats="atom json xlsx">
+            <EntityContainer Name="ZBT_CONSTRUCTION_SRV_Entities" m:IsDefaultEntityContainer="true" sap:supported-formats="atom json xlsx">
                 
-                <EntitySet Name="ProjectSet" EntityType="Z_BTS_ODATA_SRV.Project" sap:creatable="true" sap:updatable="true" sap:deletable="true"/>
-                <EntitySet Name="SiteSet" EntityType="Z_BTS_ODATA_SRV.Site" sap:creatable="true" sap:updatable="true" sap:deletable="true"/>
-                <EntitySet Name="LocationSet" EntityType="Z_BTS_ODATA_SRV.Location" sap:creatable="true" sap:updatable="true" sap:deletable="true"/>
-                <EntitySet Name="DailyLogSet" EntityType="Z_BTS_ODATA_SRV.DailyLog" sap:creatable="true" sap:updatable="true" sap:deletable="true"/>
-                <EntitySet Name="WBSSet" EntityType="Z_BTS_ODATA_SRV.WBS" sap:creatable="true" sap:updatable="true" sap:deletable="true"/>
-                <EntitySet Name="WBSPlanSet" EntityType="Z_BTS_ODATA_SRV.WBSPlan" sap:creatable="true" sap:updatable="true" sap:deletable="true"/>
+                <EntitySet Name="ProjectSet" EntityType="ZBT_CONSTRUCTION_SRV.Project" sap:creatable="true" sap:updatable="true" sap:deletable="true"/>
+                <EntitySet Name="SiteSet" EntityType="ZBT_CONSTRUCTION_SRV.Site" sap:creatable="true" sap:updatable="true" sap:deletable="true"/>
+                <EntitySet Name="LocationSet" EntityType="ZBT_CONSTRUCTION_SRV.Location" sap:creatable="true" sap:updatable="true" sap:deletable="true"/>
+                <EntitySet Name="DailyLogSet" EntityType="ZBT_CONSTRUCTION_SRV.DailyLog" sap:creatable="true" sap:updatable="true" sap:deletable="true"/>
+                <EntitySet Name="WBSSet" EntityType="ZBT_CONSTRUCTION_SRV.WBS" sap:creatable="true" sap:updatable="true" sap:deletable="true"/>
+                <EntitySet Name="WBSPlanSet" EntityType="ZBT_CONSTRUCTION_SRV.WBSPlan" sap:creatable="true" sap:updatable="true" sap:deletable="true"/>
 
-                <AssociationSet Name="Project_Site_AssocSet" Association="Z_BTS_ODATA_SRV.Project_Site_Assoc">
+                <AssociationSet Name="Project_Site_AssocSet" Association="ZBT_CONSTRUCTION_SRV.Project_Site_Assoc">
                     <End EntitySet="ProjectSet" Role="FromRole_Project"/>
                     <End EntitySet="SiteSet" Role="ToRole_Site"/>
                 </AssociationSet>
-                <AssociationSet Name="Project_WBS_AssocSet" Association="Z_BTS_ODATA_SRV.Project_WBS_Assoc">
+                <AssociationSet Name="Project_WBS_AssocSet" Association="ZBT_CONSTRUCTION_SRV.Project_WBS_Assoc">
                     <End EntitySet="ProjectSet" Role="FromRole_Project"/>
                     <End EntitySet="WBSSet" Role="ToRole_WBS"/>
                 </AssociationSet>
-                <AssociationSet Name="Site_Location_AssocSet" Association="Z_BTS_ODATA_SRV.Site_Location_Assoc">
+                <AssociationSet Name="Site_Location_AssocSet" Association="ZBT_CONSTRUCTION_SRV.Site_Location_Assoc">
                     <End EntitySet="SiteSet" Role="FromRole_Site"/>
                     <End EntitySet="LocationSet" Role="ToRole_Location"/>
                 </AssociationSet>
-                <AssociationSet Name="Site_DailyLog_AssocSet" Association="Z_BTS_ODATA_SRV.Site_DailyLog_Assoc">
+                <AssociationSet Name="Site_DailyLog_AssocSet" Association="ZBT_CONSTRUCTION_SRV.Site_DailyLog_Assoc">
                     <End EntitySet="SiteSet" Role="FromRole_Site"/>
                     <End EntitySet="DailyLogSet" Role="ToRole_DailyLog"/>
                 </AssociationSet>
-                <AssociationSet Name="WBS_WBSPlan_AssocSet" Association="Z_BTS_ODATA_SRV.WBS_WBSPlan_Assoc">
+                <AssociationSet Name="WBS_WBSPlan_AssocSet" Association="ZBT_CONSTRUCTION_SRV.WBS_WBSPlan_Assoc">
                     <End EntitySet="WBSSet" Role="FromRole_WBS"/>
                     <End EntitySet="WBSPlanSet" Role="ToRole_WBSPlan"/>
                 </AssociationSet>
 
             </EntityContainer>
             
-            <atom:link rel="self" href="Z_BTS_ODATA_SRV/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
-            <atom:link rel="latest-version" href="Z_BTS_ODATA_SRV/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+            <atom:link rel="self" href="ZBT_CONSTRUCTION_SRV/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+            <atom:link rel="latest-version" href="ZBT_CONSTRUCTION_SRV/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
         </Schema>
     </edmx:DataServices>
 </edmx:Edmx>
