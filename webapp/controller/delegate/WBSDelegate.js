@@ -1,225 +1,167 @@
-sap.ui.define([
-    "sap/ui/base/Object",
-    "sap/m/MessageToast"
-], function (BaseObject, MessageToast) {
-    "use strict";
+// sap.ui.define([
+//     "sap/ui/base/Object",
+//     "sap/m/MessageToast"
+// ], function (BaseObject, MessageToast) {
+//     "use strict";
 
-    const CONFIG = {
-        PIXELS_PER_DAY: 4, 
-        ROW_HEIGHT: "32px",
-        STEP_LABEL: 7 
-    };
+//     const CONFIG = {
+//         PIXELS_PER_DAY: 5, 
+//         ROW_HEIGHT: "32px",
+//         STEP_LABEL: 10      
+//     };
 
-    return BaseObject.extend("com.bts.zbts.controller.delegate.WBSDelegate", {
+//     return BaseObject.extend("com.bts.zbts.controller.delegate.WBSDelegate", {
 
-        constructor: function (oController) {
-            this._oController = oController;
-        },
+//         constructor: function (oController) {
+//             this._oController = oController;
+//             this._pixelsPerDay = CONFIG.PIXELS_PER_DAY;
+//             this._dChartStartDate = null;
+//         },
 
-        prepareGanttData: function (aWBSNodes) {
-            return this._calculateGanttLogic(aWBSNodes);
-        },
+//         prepareGanttData: function (aWBSNodes) {
+//             // Xử lý trường hợp dữ liệu OData V2 có bọc trong results
+//             let rawData = aWBSNodes;
+//             if (aWBSNodes && aWBSNodes.results) {
+//                 rawData = aWBSNodes.results;
+//             }
+//             return this._calculateGanttLogic(rawData || []);
+//         },
 
-        // --- 1. LOGIC TÍNH TOÁN CẤU TRÚC GANTT ---
-        _calculateGanttLogic: function(aWBSNodes) {
-            if (!aWBSNodes || aWBSNodes.length === 0) {
-                return { 
-                    chartStartDate: new Date(), 
-                    timeScale: [], 
-                    totalWidth: "100%", 
-                    pixelsPerDay: CONFIG.PIXELS_PER_DAY,
-                    rowHeight: CONFIG.ROW_HEIGHT
-                };
-            }
+//         // Thay thế method _calculateGanttLogic
+// _calculateGanttLogic: function(aNodes) {
+//     if (!aNodes || aNodes.length === 0) {
+//         let dNow = new Date();
+//         this._dChartStartDate = new Date(dNow.getFullYear(), dNow.getMonth(), 1);
+//         return { 
+//             timeScale: [], 
+//             totalWidth: "100%", 
+//             pixelsPerDay: this._pixelsPerDay,
+//             chartStartDate: this._dChartStartDate 
+//         };
+//     }
 
-            var minDate = null, maxDate = null;
-            var findMinMax = function (nodes) {
-                nodes.forEach(node => {
-                    var dStart = node.StartDate ? new Date(node.StartDate) : null;
-                    var dEnd = node.EndDate ? new Date(node.EndDate) : null;
-                    if (dStart) {
-                        if (!minDate || dStart < minDate) minDate = dStart;
-                        if (!maxDate || dStart > maxDate) maxDate = dStart;
-                    }
-                    if (dEnd) {
-                        if (!minDate || dEnd < minDate) minDate = dEnd;
-                        if (!maxDate || dEnd > maxDate) maxDate = dEnd;
-                    }
-                    if (node.children) findMinMax(node.children);
-                });
-            };
-            findMinMax(aWBSNodes);
+//     // Hàm đệ quy để tìm min/max date
+//     const findMinMaxRecursive = (nodes, result) => {
+//         nodes.forEach(node => {
+//             if (node.StartDate) {
+//                 const dStart = new Date(node.StartDate);
+//                 if (!result.min || dStart < result.min) result.min = dStart;
+//                 if (!result.max || dStart > result.max) result.max = dStart;
+//             }
+//             if (node.EndDate) {
+//                 const dEnd = new Date(node.EndDate);
+//                 if (!result.min || dEnd < result.min) result.min = dEnd;
+//                 if (!result.max || dEnd > result.max) result.max = dEnd;
+//             }
+//             // Đệ quy vào children
+//             if (node.children && node.children.length > 0) {
+//                 findMinMaxRecursive(node.children, result);
+//             }
+//         });
+//     };
 
-            if (!minDate) minDate = new Date();
-            if (!maxDate) maxDate = new Date();
+//     const result = { min: null, max: null };
+//     findMinMaxRecursive(aNodes, result);
 
-            // CHỐT NGÀY BẮT ĐẦU: Luôn bắt đầu từ mùng 1 của tháng chứa ngày nhỏ nhất
-            var chartStartDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
-            chartStartDate.setHours(0, 0, 0, 0); 
+//     const minDate = result.min || new Date();
+//     const maxDate = result.max || new Date();
 
-            // CHỐT NGÀY KẾT THÚC: Luôn kết thúc vào ngày cuối cùng của tháng chứa ngày lớn nhất
-            var chartEndDate = new Date(maxDate.getFullYear(), maxDate.getMonth() + 1, 0);
-            chartEndDate.setHours(23, 59, 59, 999);
+//     // Bắt đầu từ đầu tháng của minDate
+//     const chartStartDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+//     this._dChartStartDate = chartStartDate;
 
-            this._dChartStartDate = chartStartDate;
-
-            var aTimeScale = this._generateTimeScale(chartStartDate, chartEndDate);
-            
-            // Tính tổng số ngày thuần túy: (Cuối - Đầu) + 1
-            var totalDays = this._getDaysDiff(chartStartDate, chartEndDate) + 1;
-            var totalWidthPx = totalDays * CONFIG.PIXELS_PER_DAY;
-
-            return {
-                chartStartDate: chartStartDate,
-                timeScale: aTimeScale,
-                totalWidth: totalWidthPx + "px",
-                pixelsPerDay: CONFIG.PIXELS_PER_DAY,
-                rowHeight: CONFIG.ROW_HEIGHT
-            };
-        },
-
-        // --- 2. TẠO HEADER (HIỂN THỊ CẢ THÁNG VÀ NGÀY) ---
-        _generateTimeScale: function (dStart, dEnd) {
-    var aScale = [];
-    var current = new Date(dStart.getTime());
-    var endChart = new Date(dEnd.getTime());
+//     // Kết thúc vào cuối tháng của maxDate + 1 tháng buffer
+//     const chartEndDate = new Date(maxDate.getFullYear(), maxDate.getMonth() + 2, 0);
     
-    // Đếm số ngày tuyệt đối từ đầu biểu đồ
-    var absoluteDayIndex = 0; 
-    var step = 5; 
+//     const aTimeScale = this._generateTimeScale(chartStartDate, chartEndDate);
+//     const totalDays = Math.round((chartEndDate - chartStartDate) / (1000 * 3600 * 24)) + 1;
 
-    while (current <= endChart) {
-        var year = current.getFullYear();
-        var month = current.getMonth();
-        var lastDayOfMonth = new Date(year, month + 1, 0);
-        var boundaryDate = (lastDayOfMonth < endChart) ? lastDayOfMonth : endChart;
+//     return {
+//         chartStartDate: chartStartDate,
+//         timeScale: aTimeScale,
+//         totalWidth: Math.max(totalDays * this._pixelsPerDay, 100) + "px",
+//         pixelsPerDay: this._pixelsPerDay
+//     };
+// },
 
-        var daysInBlock = this._getDaysDiff(current, boundaryDate) + 1;
+// // Thêm method để debug
+// logGanttData: function(aWBSNodes) {
+//     console.log("WBS Data for Gantt:", aWBSNodes);
+//     const config = this.prepareGanttData(aWBSNodes);
+//     console.log("Gantt Config:", config);
+//     return config;
+// },
 
-        if (daysInBlock > 0) {
-            var aDays = [];
-            for (var d = 0; d < daysInBlock; d++) {
-                var dayDate = new Date(current.getTime());
-                dayDate.setDate(current.getDate() + d);
-                var dayNum = dayDate.getDate();
-                
-                // KIỂM TRA NHỊP 5 NGÀY
-                var bShowLabel = (absoluteDayIndex % step === 0);
+//         _generateTimeScale: function (dStart, dEnd) {
+//             var aScale = [];
+//             var current = new Date(dStart.getTime());
+//             var absoluteDayIndex = 0;
 
-                aDays.push({
-                    // Nếu không đúng nhịp, để nhãn trống "" để giữ chỗ
-                    label: bShowLabel ? (dayNum < 10 ? "0" + dayNum : "" + dayNum) : "",
-                    // Độ rộng LUÔN LUÔN là PIXELS_PER_DAY (10px) để dóng hàng với Grid bên dưới
-                    width: CONFIG.PIXELS_PER_DAY + "px"
-                });
+//             while (current <= dEnd) {
+//                 var year = current.getFullYear();
+//                 var month = current.getMonth();
+//                 var lastDayOfMonth = new Date(year, month + 1, 0);
+//                 var boundaryDate = (lastDayOfMonth < dEnd) ? lastDayOfMonth : dEnd;
+//                 var daysInBlock = Math.round((boundaryDate - current) / (1000 * 3600 * 24)) + 1;
 
-                absoluteDayIndex++;
-            }
+//                 var aDays = [];
+//                 for (var d = 0; d < daysInBlock; d++) {
+//                     var dayDate = new Date(current.getTime());
+//                     dayDate.setDate(current.getDate() + d);
+//                     var bShowLabel = (absoluteDayIndex % CONFIG.STEP_LABEL === 0) || (dayDate.getDate() === 1);
 
-            aScale.push({
-                label: current.toLocaleString('default', { month: 'short' }) + " '" + (year % 100),
-                width: (daysInBlock * CONFIG.PIXELS_PER_DAY) + "px",
-                days: aDays
-            });
-        }
-        current = new Date(year, month + 1, 1);
-    }
-    return aScale;
-},
+//                     aDays.push({
+//                         label: bShowLabel ? dayDate.getDate() : "",
+//                         width: this._pixelsPerDay + "px"
+//                     });
+//                     absoluteDayIndex++;
+//                 }
 
-        // --- 3. TÍNH TOÁN VỊ TRÍ VÀ ĐỘ RỘNG (CHỐT CHUẨN) ---
-        
-        // Hàm cốt lõi: Tính khoảng cách ngày không phụ thuộc múi giờ
-        _getDaysDiff: function(d1, d2) {
-            var date1 = new Date(d1);
-            var date2 = new Date(d2);
-            // Đưa về 12 giờ trưa để triệt tiêu sai số giờ/phút/giây
-            date1.setHours(12, 0, 0, 0);
-            date2.setHours(12, 0, 0, 0);
-            
-            var timeDiff = date2.getTime() - date1.getTime();
-            return Math.round(timeDiff / (1000 * 3600 * 24));
-        },
+//                 aScale.push({
+//                     label: current.toLocaleString('vi-VN', { month: 'long' }) + " " + year,
+//                     width: (daysInBlock * this._pixelsPerDay) + "px",
+//                     days: aDays
+//                 });
+//                 current = new Date(year, month + 1, 1);
+//             }
+//             return aScale;
+//         },
 
-        calcMargin: function (sStart) {
-            if (!sStart || !this._dChartStartDate) return "0px";
-            var daysDiff = this._getDaysDiff(this._dChartStartDate, sStart);
-            return (daysDiff * CONFIG.PIXELS_PER_DAY) + "px";
-        },
+//         calcMargin: function (sStart) {
+//             if (!sStart || !this._dChartStartDate) return "0px";
+//             var d1 = new Date(this._dChartStartDate).setHours(0,0,0,0);
+//             var d2 = new Date(sStart).setHours(0,0,0,0);
+//             var diff = Math.round((d2 - d1) / (1000 * 3600 * 24));
+//             return (diff * this._pixelsPerDay) + "px";
+//         },
 
-        calcWidth: function (sStart, sEnd) {
-            if (!sStart || !sEnd) return "0px";
-            var daysDiff = this._getDaysDiff(sStart, sEnd) + 1;
-            if (daysDiff <= 0) return "0px";
-            return (daysDiff * CONFIG.PIXELS_PER_DAY) + "px";
-        },
+//         calcWidth: function (sStart, sEnd) {
+//             if (!sStart || !sEnd) return "0px";
+//             var d1 = new Date(sStart).setHours(0,0,0,0);
+//             var d2 = new Date(sEnd).setHours(0,0,0,0);
+//             var diff = Math.round((d2 - d1) / (1000 * 3600 * 24)) + 1;
+//             return (Math.max(diff, 1) * this._pixelsPerDay) + "px";
+//         },
 
-        // --- 4. CÁC HÀM THAO TÁC DỮ LIỆU ---
-        _refreshGanttConfig: function(oView, aWBS) {
-            var oGanttConfig = this.prepareGanttData(aWBS);
-            var oConfigModel = oView.getModel("viewConfig");
-            if (oConfigModel) {
-                oConfigModel.setData(oGanttConfig, true);
-            }
-        },
+//         _refreshGantt: function() {
+//             var oView = this._oController.getView();
+//             var oData = oView.getModel("viewData").getData();
+//             // Lấy dữ liệu từ NavWBS (kết quả từ Database)
+//             var aWBS = oData.NavWBS || []; 
+//             var oNewConfig = this.prepareGanttData(aWBS);
+//             oView.getModel("viewConfig").setData(oNewConfig, true);
+//         },
 
-        onAddNewTask: function() {
-            var oView = this._oController.getView();
-            var oModel = oView.getModel("viewData");
-            var oTreeTable = oView.byId("wbsTreeTable");
+//         onZoomIn: function() {
+//             this._pixelsPerDay += 3;
+//             this._refreshGantt();
+//         },
 
-            if (!oModel || !oTreeTable) return;
-
-            var oData = oModel.getData();
-            if (!oData.WBS) oData.WBS = [];
-
-            var iSelectedIndex = oTreeTable.getSelectedIndex();
-            var oNewItem = {
-                "TaskID": "NEW_" + new Date().getTime(),
-                "StartDate": new Date(),
-                "EndDate": new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
-                "Type": "TASK",
-                "children": []
-            };
-
-            if (iSelectedIndex < 0) {
-                oNewItem.TaskName = "New Phase";
-                oNewItem.Type = "PHASE";
-                oData.WBS.push(oNewItem);
-            } else {
-                var oContext = oTreeTable.getContextByIndex(iSelectedIndex);
-                var oParentNode = oContext.getObject();
-                oNewItem.TaskName = "New Task";
-                if (!oParentNode.children) oParentNode.children = [];
-                oParentNode.children.push(oNewItem);
-                oTreeTable.expand(iSelectedIndex);
-            }
-
-            oModel.refresh();
-            this._refreshGanttConfig(oView, oData.WBS);
-        },
-
-        onDeleteTask: function() {
-            var oView = this._oController.getView();
-            var oModel = oView.getModel("viewData");
-            var oTreeTable = oView.byId("wbsTreeTable");
-
-            var iSelectedIndex = oTreeTable.getSelectedIndex();
-            if (iSelectedIndex < 0) return;
-
-            var oContext = oTreeTable.getContextByIndex(iSelectedIndex);
-            var sPath = oContext.getPath();
-            var aPathParts = sPath.split("/");
-            var iIndexToDelete = parseInt(aPathParts.pop(), 10);
-            var sParentPath = aPathParts.join("/");
-
-            var aContainer = oModel.getProperty(sParentPath);
-            if (Array.isArray(aContainer)) {
-                aContainer.splice(iIndexToDelete, 1);
-                oModel.refresh();
-                oTreeTable.clearSelection();
-                this._refreshGanttConfig(oView, oModel.getData().WBS);
-            }
-        }
-    });
-});
+//         onZoomOut: function() {
+//             if (this._pixelsPerDay > 4) {
+//                 this._pixelsPerDay -= 3;
+//                 this._refreshGantt();
+//             }
+//         }
+//     });
+// });

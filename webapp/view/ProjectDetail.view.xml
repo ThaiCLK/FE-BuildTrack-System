@@ -4,48 +4,43 @@
     xmlns="sap.m"
     xmlns:core="sap.ui.core">
     
-    <Page title="Project Detail Structure" showNavButton="true" navButtonPress=".onNavBack" enableScrolling="true" class="myCustomWideContent">
+    <Page 
+        title="{viewData>/ProjectName} ({viewData>/ProjectCode})" 
+        showNavButton="true" 
+        navButtonPress=".onNavBack" 
+        class="sapUiContentPadding">
+        
         <content>
-            <IconTabBar id="idDetailTabBar" expanded="true" >
+            <IconTabBar id="idDetailTabBar" expanded="true" stretchContentHeight="true">
                 <items>
-                    
-                    <IconTabFilter icon="sap-icon://hint" text="Overview" key="info">
-                        <core:Fragment fragmentName="com.bts.zbts.view.fragments.Overview" type="XML" />
-                    </IconTabFilter>
-
-                    <IconTabFilter icon="sap-icon://tree" text="WBS" key="wbs">
+                    <IconTabFilter icon="sap-icon://tree" text="Cấu trúc WBS" key="wbs">
                         <core:Fragment fragmentName="com.bts.zbts.view.fragments.WBS" type="XML" />
                     </IconTabFilter>
 
-                    <IconTabFilter icon="sap-icon://map" text="Location" key="loc">
+                    <IconTabFilter icon="sap-icon://map" text="Vị trí" key="loc">
                          <core:Fragment fragmentName="com.bts.zbts.view.fragments.Location" type="XML" />
                     </IconTabFilter>
 
-                    <IconTabFilter icon="sap-icon://form" text="Daily Log" key="log">
+                    <IconTabFilter icon="sap-icon://form" text="Nhật ký thi công" key="log">
                          <core:Fragment fragmentName="com.bts.zbts.view.fragments.DailyLog" type="XML" />
                     </IconTabFilter>
 
-                    <IconTabFilter icon="sap-icon://manager-insight" text="Report" key="rep">
+                    <IconTabFilter icon="sap-icon://manager-insight" text="Báo cáo" key="rep">
                          <core:Fragment fragmentName="com.bts.zbts.view.fragments.Report" type="XML" />
                     </IconTabFilter>
-
                 </items>
             </IconTabBar>
-
         </content>
 
         <footer>
             <OverflowToolbar>
                 <ToolbarSpacer/>
-                <Button text="Save" 
-                icon="sap-icon://save" 
-                type="Emphasized" 
-                press=".onSaveProject"
-                visible="true" /> <Button text="Approve (Commander)" type="Accept" visible="{viewConfig>/visible/btnCommanderApprove}" press=".onCommanderApprove"/>
-                <Button text="Approve (Commander)" type="Accept" visible="{viewConfig>/visible/btnCommanderApprove}" press=".onCommanderApprove"/>
-                <Button text="Reject (Commander)" type="Reject" visible="{viewConfig>/visible/btnCommanderApprove}" press=".onReject"/>
-                <Button text="Verify &amp; Approve (Consultant)" type="Accept" visible="{viewConfig>/visible/btnConsultantApprove}" press=".onConsultantApprove"/>
-                <Button text="Reject (Consultant)" type="Reject" visible="{viewConfig>/visible/btnConsultantApprove}" press=".onReject"/>
+                <Button 
+                    text="Lưu thay đổi" 
+                    icon="sap-icon://save" 
+                    type="Emphasized" 
+                    press=".onSaveProject"
+                    visible="{viewConfig>/visible/btnSave}" />
             </OverflowToolbar>
         </footer>
     </Page>

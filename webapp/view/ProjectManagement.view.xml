@@ -7,7 +7,6 @@
     <Page id="pageProjectManagement" title="Project List" showNavButton="false" class="myCustomWideContent">
         <content>
             <VBox class="sapUiSmallMargin">
-                <!-- <Table id="idProjectsTable" items="{/Projects}" growing="true" growingThreshold="10" mode="None">  -->
                 <Table id="idProjectsTable" items="{/ProjectSet}" growing="true" growingThreshold="10" mode="None"> 
                     <headerToolbar>
                         <OverflowToolbar>
@@ -21,7 +20,6 @@
                         <Column width="5rem"><Text text="Project ID" /></Column>
                         <Column width="14rem"><Text text="Project Name" /></Column>
                         <Column minScreenWidth="Tablet" demandPopin="true"><Text text="Type" /></Column>
-                        <Column width="12rem" minScreenWidth="Tablet" demandPopin="true"><Text text="Location" /></Column>
                         <Column minScreenWidth="Tablet" demandPopin="true"><Text text="Start Date" /></Column>
                         <Column minScreenWidth="Tablet" demandPopin="true"><Text text="Est. End Date" /></Column>
                         <Column hAlign="Center"><Text text="Status" /></Column>
@@ -30,12 +28,11 @@
                     <items>
                         <ColumnListItem vAlign="Middle" type="Navigation" press=".onPressProject">
                             <cells>
-                                <ObjectIdentifier title="{ProjectID}"/>
+                                <ObjectIdentifier title="{ProjectCode}"/>
                                 <Text text="{ProjectName}" wrapping="false" />
                                 <Text text="{path: 'ProjectType', formatter: '.formatProjectType'}" />
-                                <Text text="{Location}" wrapping="false"/>
-                                <Text text="{StartDate}"/>
-                                <Text text="{EndDate}"/>
+                                <Text text="{path: 'StartDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'yyyy-MM-dd' }}"/>
+                                <Text text="{path: 'EndDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'yyyy-MM-dd' }}"/>
                                 <ObjectStatus 
                                     text="{path: 'Status', formatter: '.formatStatusText'}" 
                                     state="{path: 'Status', formatter: '.formatStatusState'}" 
