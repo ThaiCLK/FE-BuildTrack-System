@@ -7,12 +7,12 @@
     <Page id="pageProjectManagement" title="Project List" showNavButton="false" class="myCustomWideContent">
         <content>
             <VBox class="sapUiSmallMargin">
-                <Table id="idProjectsTable" items="{/ProjectSet}" growing="true" growingThreshold="10" mode="None"> 
+                <Table id="idProjectsTable" items="{/ProjectSet}" growing="true" growingThreshold="13" mode="None"> 
                     <headerToolbar>
                         <OverflowToolbar>
                             <Title text="Project Database" level="H2"/>
                             <ToolbarSpacer/>
-                            <SearchField width="20%" placeholder="Find..."/>
+                            <SearchField width="20%" placeholder="Find..." liveChange=".onSearch"/>
                             <Button icon="sap-icon://add" text="Create Project" type="Emphasized" visible="{userInfo>/canCreateProject}" press=".onAddProject"/>
                         </OverflowToolbar>
                     </headerToolbar>

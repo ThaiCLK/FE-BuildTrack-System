@@ -22,7 +22,8 @@
         "settings": {
           "annotations": [],
           "localUri": "localService/mainService/metadata.xml",
-          "odataVersion": "2.0"
+          "odataVersion": "2.0",
+          "loadMetadataAsync": true
         }
       }
     }
@@ -73,7 +74,11 @@
       "i18n": {
         "type": "sap.ui.model.resource.ResourceModel",
         "settings": {
-          "bundleName": "com.bts.zbts.i18n.i18n"
+          "bundleName": "com.bts.zbts.i18n.i18n",
+          "supportedLocales": [
+            ""
+          ],
+          "fallbackLocale": ""
         }
       },
       "": {
@@ -82,12 +87,9 @@
         "preload": true,
         "settings": {
           "defaultBindingMode": "TwoWay",
-          "useBatch": false
+          "useBatch": true,
+          "defaultCountMode": "Inline"
         }
-      },
-      "mock": {
-        "type": "sap.ui.model.json.JSONModel",
-        "uri": "mockdata/mock_projects.json"
       },
       "viewConfig": {
         "type": "sap.ui.model.json.JSONModel",

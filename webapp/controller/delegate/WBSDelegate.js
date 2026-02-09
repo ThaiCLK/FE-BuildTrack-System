@@ -92,40 +92,53 @@
 //     return config;
 // },
 
-//         _generateTimeScale: function (dStart, dEnd) {
-//             var aScale = [];
-//             var current = new Date(dStart.getTime());
-//             var absoluteDayIndex = 0;
+// _generateTimeScale: function (dStart, dEnd) {
+//     var aScale = [];
+//     var current = new Date(dStart.getTime());
+//     var endChart = new Date(dEnd.getTime());
+    
+//     // Đếm số ngày tuyệt đối từ đầu biểu đồ
+//     var absoluteDayIndex = 0; 
+//     var step = 5; 
 
-//             while (current <= dEnd) {
-//                 var year = current.getFullYear();
-//                 var month = current.getMonth();
-//                 var lastDayOfMonth = new Date(year, month + 1, 0);
-//                 var boundaryDate = (lastDayOfMonth < dEnd) ? lastDayOfMonth : dEnd;
-//                 var daysInBlock = Math.round((boundaryDate - current) / (1000 * 3600 * 24)) + 1;
+//     while (current <= endChart) {
+//         var year = current.getFullYear();
+//         var month = current.getMonth();
+//         var lastDayOfMonth = new Date(year, month + 1, 0);
+//         var boundaryDate = (lastDayOfMonth < endChart) ? lastDayOfMonth : endChart;
 
-//                 var aDays = [];
-//                 for (var d = 0; d < daysInBlock; d++) {
-//                     var dayDate = new Date(current.getTime());
-//                     dayDate.setDate(current.getDate() + d);
-//                     var bShowLabel = (absoluteDayIndex % CONFIG.STEP_LABEL === 0) || (dayDate.getDate() === 1);
+//         var daysInBlock = this._getDaysDiff(current, boundaryDate) + 1;
 
-//                     aDays.push({
-//                         label: bShowLabel ? dayDate.getDate() : "",
-//                         width: this._pixelsPerDay + "px"
-//                     });
-//                     absoluteDayIndex++;
-//                 }
+//         if (daysInBlock > 0) {
+//             var aDays = [];
+//             for (var d = 0; d < daysInBlock; d++) {
+//                 var dayDate = new Date(current.getTime());
+//                 dayDate.setDate(current.getDate() + d);
+//                 var dayNum = dayDate.getDate();
+                
+//                 // KIỂM TRA NHỊP 5 NGÀY
+//                 var bShowLabel = (absoluteDayIndex % step === 0);
 
-//                 aScale.push({
-//                     label: current.toLocaleString('vi-VN', { month: 'long' }) + " " + year,
-//                     width: (daysInBlock * this._pixelsPerDay) + "px",
-//                     days: aDays
+//                 aDays.push({
+//                     // Nếu không đúng nhịp, để nhãn trống "" để giữ chỗ
+//                     label: bShowLabel ? (dayNum < 10 ? "0" + dayNum : "" + dayNum) : "",
+//                     // Độ rộng LUÔN LUÔN là PIXELS_PER_DAY (10px) để dóng hàng với Grid bên dưới
+//                     width: CONFIG.PIXELS_PER_DAY + "px"
 //                 });
-//                 current = new Date(year, month + 1, 1);
+
+//                 absoluteDayIndex++;
 //             }
-//             return aScale;
-//         },
+
+//             aScale.push({
+//                 label: current.toLocaleString('default', { month: 'short' }) + " '" + (year % 100),
+//                 width: (daysInBlock * CONFIG.PIXELS_PER_DAY) + "px",
+//                 days: aDays
+//             });
+//         }
+//         current = new Date(year, month + 1, 1);
+//     }
+//     return aScale;
+// },
 
 //         calcMargin: function (sStart) {
 //             if (!sStart || !this._dChartStartDate) return "0px";

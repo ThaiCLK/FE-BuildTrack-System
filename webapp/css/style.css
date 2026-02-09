@@ -17,12 +17,131 @@
 }
 
 .myCustomWideContent {
-    width: 80% !important;       
+    width: 60% !important;       
     margin-left: auto !important;
     margin-right: auto !important; 
-    padding: 0 !important;       
+    padding-left: 0.7% !important;     
 }
 
 .sapMITBContent {
     padding: 0.5rem 0 !important; 
+}
+
+/* --- PHẦN GANTT CHART (Giữ nguyên logic cũ) --- */
+
+/* Container của mỗi tháng trên Header */
+.gantt-header-month-container {
+    height: 100%;
+    border-right: 1px solid #999;
+    background-color: #f7f7f7;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Dòng chữ Tên Tháng */
+.gantt-header-month-label {
+    font-weight: bold;
+    color: #333;
+    border-bottom: 1px solid #ccc;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    background-color: #e5e5e5;
+}
+
+/* Ô ngày nhỏ (Grid) */
+.gantt-header-day-cell {
+    height: 100%;
+    border-right: 1px solid #e0e0e0;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gantt-day-text {
+    font-size: 0.6rem;
+    color: #666;
+}
+
+/* Lưới nền của phần Body */
+.gantt-cell-container {
+    height: 100%;
+    background-image: linear-gradient(to right, #f0f0f0 1px, transparent 1px);
+    background-size: 3px 100%; 
+    border-left: 1px solid #999; 
+    padding: 0 !important; 
+}
+
+/* Thanh Task */
+.gantt-bar-task {
+    background-color: #0070f2;
+    height: 18px;
+    border-radius: 2px;
+    cursor: pointer;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Thanh Phase */
+.gantt-bar-phase {
+    height: 10px;
+    border-top: 2px solid #333;
+    margin-top: 5px;
+    position: relative;
+}
+.gantt-bar-phase::before, .gantt-bar-phase::after {
+    content: ''; position: absolute; top: 0; width: 2px; height: 6px; background-color: #333;
+}
+.gantt-bar-phase::before { left: 0; }
+.gantt-bar-phase::after { right: 0; }
+
+.font-bold { font-weight: bold; }
+
+/* Header Cell Styling */
+.gantt-header-cell {
+    border-right: 1px solid #d9d9d9;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f2f2f2;
+    box-sizing: border-box;
+    overflow: hidden; 
+}
+
+/* Text bên trong Header - Cắt chữ nếu quá dài */
+.gantt-header-label-text {
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: clip; 
+    font-size: 12px !important;
+}
+
+/* Tối ưu Font chữ nhỏ */
+.small-font-input .sapMInputBaseInner,
+.small-font-input input,
+.small-font-text {
+    font-size: 12px !important;
+    font-weight: 500;
+}
+.small-date-picker .sapMInputBaseInner {
+    font-size: 11px !important;
+    padding-left: 5px; padding-right: 5px;
+}
+.small-date-picker .sapUiIcon {
+    font-size: 12px; width: 1.5rem;
+}
+.sapUiSizeCompact .sapUiTableTreeIcon {
+    background-position: center; background-size: 14px;
+}
+
+/* --- [MỚI] LAYOUT WIDTH CONTROL (Điều chỉnh độ rộng) --- */
+
+/* Ghi đè container mặc định của SAP */
+.sapMPage .sapMPageScroll {
+    width: 96% !important;       /* Rộng 96% màn hình (chừa lại 4%) */
+    max-width: 100% !important;  /* Phá bỏ giới hạn 1280px mặc định */
+    margin-left: auto !important;
+    margin-right: auto !important; /* Căn giữa */
+    box-sizing: border-box;
 }
