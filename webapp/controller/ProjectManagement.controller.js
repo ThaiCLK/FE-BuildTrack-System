@@ -20,48 +20,6 @@ sap.ui.define([
 
     return Controller.extend("com.bts.zbts.controller.ProjectManagement", {
 
-        // --- SEARCH FUNCTION ---
-        onSearch: function (oEvent) {
-            var sQuery = oEvent.getParameter("newValue");
-
-            clearTimeout(this._searchTimer);
-
-            this._searchTimer = setTimeout(function () {
-                var aFilters = [];
-                if (sQuery && sQuery.length > 0) {
-                    aFilters.push(new sap.ui.model.Filter("ProjectName", sap.ui.model.FilterOperator.Contains, sQuery));
-                }
-
-                var oTable = this.byId("idProjectsTable");
-                var oBinding = oTable.getBinding("items");
-
-                if (oBinding) {
-                    oBinding.filter(aFilters);
-                }
-            }.bind(this), 300);
-        },
-
-        formatStatusText: function (sStatus) {
-            if (!sStatus) return "";
-            return sStatus.charAt(0).toUpperCase() + sStatus.slice(1).toLowerCase();
-        },
-
-        formatStatusState: function (sStatus) {
-            if (!sStatus) return "None";
-            switch (sStatus.toUpperCase()) {
-                case "ACTIVE": return "Success";
-                case "PLANNING": return "Information";
-                case "REVIEWED": return "Warning";
-                case "CLOSED": return "Error";
-                default: return "None";
-            }
-        },
-
-        formatProjectType: function (sType) {
-            if (!sType) return "";
-            return sType.charAt(0).toUpperCase() + sType.slice(1).toLowerCase();
-        },
-
         // --- NAVIGATION ---
         onPressProject: function (oEvent) {
             var oItem = oEvent.getSource();
@@ -80,112 +38,253 @@ sap.ui.define([
             }
         },
 
+        // --- SEARCH FUNCTION ---
+        onSearch: function (oEvent) {
+            var sQuery = oEvent.getParameter("newValue");
+            clearTimeout(this._searchTimer);
+            this._searchTimer = setTimeout(function () {
+                var aFilters = [];
+                if (sQuery && sQuery.length > 0) {
+                    aFilters.push(new sap.ui.model.Filter("ProjectName", sap.ui.model.FilterOperator.Contains, sQuery));
+                }
+                var oTable = this.byId("idProjectsTable");
+                var oBinding = oTable.getBinding("items");
+
+                if (oBinding) {
+                    oBinding.filter(aFilters);
+                }
+            }.bind(this), 300);
+        },
+        formatStatusText: function (sStatus) {
+            if (!sStatus) return "";
+            return sStatus.charAt(0).toUpperCase() + sStatus.slice(1).toLowerCase();
+        },
+        formatStatusState: function (sStatus) {
+            if (!sStatus) return "None";
+            switch (sStatus.toUpperCase()) {
+                case "ACTIVE": return "Success";
+                case "PLANNING": return "Information";
+                case "REVIEWED": return "Warning";
+                case "CLOSED": return "Error";
+                default: return "None";
+            }
+        },
+        formatProjectType: function (sType) {
+            if (!sType) return "";
+            return sType.charAt(0).toUpperCase() + sType.slice(1).toLowerCase();
+        },
+
+        // --- INITIALIZATION ---
+        onInit: function () {
+            var oTempData = {
+                project: {
+                    ProjectCode: "",
+                    ProjectName: "",
+                    ProjectType: "ROAD",
+                    StartDate: null,
+                    EndDate: null
+                },
+                wbs: {
+                    WbsCode: "",
+                    WbsName: ""
+                },
+                plan: {
+                    WbsPlanName: "",
+                    PlanStartDate: null,
+                    PlanEndDate: null,
+                    PlanQty: "",
+                    Status: "DRAFT"
+                }
+            };
+            var oLocalModel = new sap.ui.model.json.JSONModel(oTempData);
+            this.getView().setModel(oLocalModel, "temp");
+        },
+
+        // --- CREATE DEEP PROJECT STRUCTURE ---
         onAddProject: function () {
             var that = this;
             if (this._oCreateDialog) {
                 this._oCreateDialog.destroy();
                 this._oCreateDialog = null;
             }
-            this._oCreateDialog = new Dialog({
-                title: "Create New Project",
-                type: "Message",
-                contentWidth: "600px",
-                content: [
-                    new Label({ text: "Project ID", required: true }),
-                    new Input("newProjectCode", {
-                        placeholder: "e.g. PRJ-XXX", liveChange: function (oEvent) {
-                            var sValue = oEvent.getParameter("value");
-                            oEvent.getSource().setValue(sValue.toUpperCase());
-                        }
+
+            // Khởi tạo IconTabBar để chia Tab
+            var oIconTabBar = new sap.m.IconTabBar({
+                expandable: false,
+                items: [
+                    // TAB 1: THÔNG TIN PROJECT (Giữ nguyên hoặc tinh chỉnh nhẹ)
+                    new sap.m.IconTabFilter({
+                        key: "project",
+                        icon: "sap-icon://product",
+                        text: "Project",
+                        content: [
+                            new sap.ui.layout.form.SimpleForm({
+                                editable: true,
+                                layout: "ResponsiveGridLayout",
+                                labelSpanL: 3, labelSpanM: 3,
+                                columnsL: 1, columnsM: 1,
+                                content: [
+                                    new sap.m.Label({ text: "Project Code", required: true }),
+                                    new sap.m.Input("newProjectCode", { placeholder: "e.g. PRJ-XXX" }),
+                                    new sap.m.Label({ text: "Project Name", required: true }),
+                                    new sap.m.Input("newProjectName", { placeholder: "e.g. Metro Line 3" }),
+                                    new sap.m.Label({ text: "Project Type" }),
+                                    new sap.m.Select("newProjectType", {
+                                        items: [
+                                            new sap.ui.core.Item({ key: "ROAD", text: "Road" }),
+                                            new sap.ui.core.Item({ key: "BRIDGE", text: "Bridge" }),
+                                            new sap.ui.core.Item({ key: "BUILDING", text: "Building" }),
+                                            new sap.ui.core.Item({ key: "TUNNEL", text: "Tunnel" })
+                                        ]
+                                    }),
+                                    new sap.m.Label({ text: "Timeline" }),
+                                    new sap.m.DatePicker("newStartDate", { placeholder: "Start Date" }),
+                                    new sap.m.DatePicker("newEndDate", { placeholder: "End Date" })
+                                ]
+                            })
+                        ]
                     }),
-                    new Label({ text: "Project Name", required: true }),
-                    new Input("newProjectName", { placeholder: "e.g. Metro Line 3" }),
-                    new Label({ text: "Project Type" }),
-                    new Select("newProjectType", {
-                        width: "100%",
-                        items: [
-                            new Item({ key: "ROAD", text: "Road" }),
-                            new Item({ key: "BRIDGE", text: "Bridge" }),
-                            new Item({ key: "BUILDING", text: "Building" }),
-                            new Item({ key: "TUNNEL", text: "Tunnel" })
-                        ],
-                        selectedKey: "ROAD"
+
+                    // TAB 2: THÔNG TIN WBS (2 TRƯỜNG THEO JSON)
+                    new sap.m.IconTabFilter({
+                        key: "wbs",
+                        icon: "sap-icon://org-chart",
+                        text: "WBS",
+                        content: [
+                            new sap.ui.layout.form.SimpleForm({
+                                editable: true,
+                                layout: "ResponsiveGridLayout",
+                                labelSpanL: 3, labelSpanM: 3,
+                                content: [
+                                    new sap.m.Label({ text: "WBS Code", required: true }),
+                                    new sap.m.Input("newWBSCode", { placeholder: "e.g. WBS-ENG-01" }),
+                                    new sap.m.Label({ text: "WBS Name", required: true }),
+                                    new sap.m.Input("newWBSName", { placeholder: "e.g. Engineering and Design" })
+                                ]
+                            })
+                        ]
                     }),
-                    new Label({ text: "Timeline (Start - Est. End)" }),
-                    new HBox({
-                        alignItems: "Center",
-                        items: [
-                            new DatePicker("newStartDate", {
-                                width: "100%", placeholder: "Start Date", displayFormat: "yyyy-MM-dd", valueFormat: "yyyy-MM-dd",
-                                change: function (oEvent) {
-                                    var sVal = oEvent.getParameter("value");
-                                    if (sVal) {
-                                        var dStart = new Date(sVal);
-                                        var dEnd = new Date(dStart);
-                                        dEnd.setFullYear(dEnd.getFullYear() + 1);
-                                        var sEndVal = dEnd.toISOString().split("T")[0];
-                                        sap.ui.getCore().byId("newEndDate").setValue(sEndVal);
-                                    }
-                                }
-                            }),
-                            new Label({ text: " - ", width: "2rem", textAlign: "Center" }),
-                            new DatePicker("newEndDate", { width: "100%", placeholder: "Est. End Date", displayFormat: "yyyy-MM-dd", valueFormat: "yyyy-MM-dd" })
+
+                    // TAB 3: THÔNG TIN WBS PLAN (5 TRƯỜNG THEO JSON)
+                    new sap.m.IconTabFilter({
+                        key: "plan",
+                        icon: "sap-icon://official-service",
+                        text: "WBS Plan",
+                        content: [
+                            new sap.ui.layout.form.SimpleForm({
+                                editable: true,
+                                layout: "ResponsiveGridLayout",
+                                labelSpanL: 4, labelSpanM: 4,
+                                content: [
+                                    new sap.m.Label({ text: "Plan Name", required: true }),
+                                    new sap.m.Input("newPlanName", { placeholder: "e.g. Geological Survey" }),
+
+                                    new sap.m.Label({ text: "Plan Start Date" }),
+                                    new sap.m.DatePicker("newPlanStartDate"),
+
+                                    new sap.m.Label({ text: "Plan End Date" }),
+                                    new sap.m.DatePicker("newPlanEndDate"),
+
+                                    new sap.m.Label({ text: "Plan Quantity" }),
+                                    new sap.m.Input("newPlanQty", { type: "Number", placeholder: "e.g. 10" }),
+
+                                    // new sap.m.Label({ text: "Unit" }), // Thêm trường Unit để đẩy đủ bộ dữ liệu
+                                    // new sap.m.Input("newUnitCode", { placeholder: "e.g. DAY" }),
+
+                                    new sap.m.Label({ text: "Status" }),
+                                    new sap.m.Select("newPlanStatus", {
+                                        items: [
+                                            new sap.ui.core.Item({ key: "DRAFT", text: "Draft" }),
+                                            new sap.ui.core.Item({ key: "APPROVED", text: "Approved" })
+                                        ]
+                                    })
+                                ]
+                            })
                         ]
                     })
-                ],
-                beginButton: new Button({ text: "Create", type: "Emphasized", press: function () { that._doCreateProject(); } }),
-                endButton: new Button({ text: "Cancel", press: function () { that._oCreateDialog.close(); } }),
-                afterClose: function () { that._oCreateDialog.destroy(); that._oCreateDialog = null; }
+                ]
             });
+
+            this._oCreateDialog = new sap.m.Dialog({
+                title: "Create Deep Project Structure",
+                contentWidth: "600px", // Giảm chiều rộng lại một chút cho cân đối
+                contentHeight: "auto", // Để auto để tránh khoảng trắng thừa phía dưới
+                content: [oIconTabBar],
+                beginButton: new sap.m.Button({
+                    text: "Create All",
+                    type: "Emphasized",
+                    press: function () { that._doCreateProjectDeep(); }
+                }),
+                endButton: new sap.m.Button({
+                    text: "Cancel",
+                    press: function () { that._oCreateDialog.close(); }
+                }),
+                afterClose: function () {
+                    that._oCreateDialog.destroy();
+                    that._oCreateDialog = null;
+                }
+            });
+
             this._oCreateDialog.open();
         },
 
-        _doCreateProject: function () {
+        _doCreateProjectDeep: function () {
             var that = this;
-            // 1. Lấy dữ liệu từ các control trong Dialog
-            var sCode = sap.ui.getCore().byId("newProjectCode").getValue(); // Lấy Project ID mới thêm
-            var sName = sap.ui.getCore().byId("newProjectName").getValue();
-            var sType = sap.ui.getCore().byId("newProjectType").getSelectedKey();
-            var sStart = sap.ui.getCore().byId("newStartDate").getValue();
-            var sEnd = sap.ui.getCore().byId("newEndDate").getValue();
+            var oModel = this.getView().getModel();
 
-            // 2. Kiểm tra dữ liệu bắt buộc (Validation)
-            if (!sCode) {
-                sap.m.MessageToast.show("Project ID is required!");
-                return;
-            }
-            if (!sName) {
-                sap.m.MessageToast.show("Name is required!");
-                return;
-            }
-
-            // 3. Chuẩn bị Payload gửi lên Backend OData
+            // 1. Thu thập dữ liệu từ UI
             var oPayload = {
-                ProjectCode: sCode, // Map đúng với thuộc tính hiển thị trên bảng
-                ProjectName: sName,
-                ProjectType: sType,
+                ProjectCode: sap.ui.getCore().byId("newProjectCode").getValue(),
+                ProjectName: sap.ui.getCore().byId("newProjectName").getValue(),
+                ProjectType: sap.ui.getCore().byId("newProjectType").getSelectedKey(),
+                StartDate: this._formatDateToOData(sap.ui.getCore().byId("newStartDate").getDateValue()),
+                EndDate: this._formatDateToOData(sap.ui.getCore().byId("newEndDate").getDateValue()),
                 Status: "PLANNING",
-                StartDate: sStart ? new Date(sStart) : new Date(),
-                EndDate: sEnd ? new Date(sEnd) : null,
-                NavWBS: [] // Khởi tạo mảng trống cho Deep Insert nếu cần
+
+                // Cấu trúc lồng nhau NavWBS
+                NavWBS: [{
+                    WbsCode: sap.ui.getCore().byId("newWBSCode").getValue(),
+                    WbsName: sap.ui.getCore().byId("newWBSName").getValue(),
+
+                    // Cấu trúc lồng nhau NavWBSPlan (5 trường)
+                    NavWBSPlan: [{
+                        WbsPlanName: sap.ui.getCore().byId("newPlanName").getValue(),
+                        PlanStartDate: this._formatDateToOData(sap.ui.getCore().byId("newPlanStartDate").getDateValue()),
+                        PlanEndDate: this._formatDateToOData(sap.ui.getCore().byId("newPlanEndDate").getDateValue()),
+                        PlanQty: sap.ui.getCore().byId("newPlanQty").getValue(),
+                        Status: sap.ui.getCore().byId("newPlanStatus").getSelectedKey()
+                    }]
+                }]
             };
 
-            // 4. Gọi OData Model để tạo mới
-            var oModel = this.getView().getModel();
+            // 2. Validation cơ bản
+            if (!oPayload.ProjectCode || !oPayload.NavWBS[0].WbsCode || !oPayload.NavWBS[0].NavWBSPlan[0].WbsPlanName) {
+                MessageToast.show("Please fill required fields in all tabs!");
+                return;
+            }
+
+            // 3. Gọi hàm Create Deep
             oModel.create("/ProjectSet", oPayload, {
                 success: function () {
-                    sap.m.MessageToast.show("Project " + sCode + " created successfully!");
+                    MessageToast.show("Deep Project Structure created!");
                     that._oCreateDialog.close();
-                    // Refresh lại model để cập nhật danh sách mới lên Table
-                    oModel.refresh(true);
+                    oModel.refresh();
                 },
                 error: function (oError) {
-                    // Hiển thị chi tiết lỗi từ SAP Gateway nếu có
-                    sap.m.MessageBox.error("Error creating project. Please check if ID already exists.");
+                    var sMsg = "Error creating deep structure.";
+                    try {
+                        var oResponse = JSON.parse(oError.responseText);
+                        sMsg = oResponse.error.message.value;
+                    } catch (e) { }
+                    MessageBox.error(sMsg);
                 }
             });
         },
-
+        _formatDateToOData: function (oDate) {
+            if (!oDate) return null;
+            // Đảm bảo trả về đối tượng Date để OData Model tự convert sang Edm.DateTime
+            return oDate;
+        },
         onDeleteProject: function (oEvent) {
             var oModel = this.getView().getModel();
             var sPath = oEvent.getSource().getBindingContext().getPath();

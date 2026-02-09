@@ -3,66 +3,98 @@
     xmlns:core="sap.ui.core"
     xmlns:t="sap.ui.table">
 
-    <t:TreeTable
-        id="wbsTreeTable"
-        rows="{
-            path: 'viewData>/WBS',
-            parameters: {
-                arrayNames: ['children'],
-                numberOfExpandedLevels: 2
-            }
-        }"
+    <t:TreeTable id="wbsTreeTable"
+        rows="{path: 'viewData>/WBS', parameters: {arrayNames: ['children'], numberOfExpandedLevels: 2}}"
         selectionMode="Single"
-        visibleRowCount="18"
-        enableColumnReordering="false"
-        alternateRowColors="true"
-        class="sapUiSmallMarginTop sapUiSizeCompact">
-        
-        <t:extension>
-            <OverflowToolbar>
-                <Title text="Cấu trúc WBS &amp; Kế hoạch chi tiết" level="H2"/>
-                <ToolbarSpacer/>
-                <Button text="Thêm công việc" icon="sap-icon://add" type="Emphasized" press=".onAddNewTask" />
-                <Button text="Xóa" icon="sap-icon://delete" type="Reject" press=".onDeleteTask" />
-            </OverflowToolbar>
-        </t:extension>
+        visibleRowCount="21"
+        rowHeight="30"
+        class="myCustomWideContent">
 
         <t:columns>
-            <t:Column width="30rem">
-                <t:label><Label text="Hạng mục / Công việc chi tiết" design="Bold"/></t:label>
+            <t:Column width="18rem">
+                <t:label><Label text="Work progress" design="Bold"/></t:label>
                 <t:template>
                     <HBox alignItems="Center">
-                        <core:Icon 
-                            src="{= ${viewData>Type} === 'WBS' ? 'sap-icon://folder-blank' : 'sap-icon://activity-items' }" 
-                            class="sapUiTinyMarginEnd" 
-                            color="{= ${viewData>Type} === 'WBS' ? '#346187' : '#e67e22' }"/>
-                        <Text text="{viewData>DisplayName}" 
-                              renderWhitespace="true"
-                              class="{= ${viewData>Type} === 'WBS' ? 'sapUiSelectable font-bold' : '' }"/>
+                        <core:Icon src="{= ${viewData>Type} === 'WBS' ? 'sap-icon://folder-blank' : 'sap-icon://activity-items'}"
+                                   class="sapUiTinyMarginEnd" 
+                                   color="{= ${viewData>Type} === 'WBS' ? '#346187' : '#e67e22'}"/>
+                        <Text text="{viewData>DisplayName}" wrapping="false" tooltip="{viewData>DisplayName}"/>
                     </HBox>
                 </t:template>
             </t:Column>
 
-            <t:Column width="15rem" hAlign="Center">
-                <t:label><Label text="Mã định danh" /></t:label>
+            <t:Column width="6rem" hAlign="Center">
+                <t:label><Label text="Start"/></t:label>
                 <t:template>
-                    <Text text="{viewData>CustomId}" />
+                    <Text text="{path: 'viewData>PlanStartDate', formatter: '.formatDate'}"/>
                 </t:template>
             </t:Column>
 
-            <t:Column width="10rem" hAlign="Center">
-                <t:label><Label text="Ngày bắt đầu" /></t:label>
+            <t:Column width="6rem" hAlign="Center">
+                <t:label><Label text="End"/></t:label>
                 <t:template>
-                    <Text text="{path: 'viewData>PlanStartDate', formatter: '.formatDate'}" />
+                    <Text text="{path: 'viewData>PlanEndDate', formatter: '.formatDate'}"/>
                 </t:template>
             </t:Column>
 
-            <t:Column width="10rem" hAlign="Center">
-                <t:label><Label text="Trạng thái" /></t:label>
+            <t:Column width="{viewConfig>/totalWidth}" resizable="false">
+                <t:label>
+                    <VBox width="{viewConfig>/totalWidth}" renderType="Bare">
+                        <HBox items="{path: 'viewConfig>/timeScale'}" renderType="Bare" height="25px">
+                            <items>
+                                <FlexBox width="{viewConfig>monthWidth}" 
+                                         justifyContent="Center" alignItems="Center" 
+                                         class="gantt-month-header gantt-no-shrink">
+                                    <Text text="{viewConfig>monthLabel}"/>
+                                </FlexBox>
+                            </items>
+                        </HBox>
+                        
+                        <HBox items="{path: 'viewConfig>/timeScale'}" renderType="Bare" height="20px">
+    <items>
+        <HBox items="{path: 'viewConfig>days'}" renderType="Bare" class="gantt-no-shrink">
+            <items>
+                <FlexBox width="{viewConfig>dayWidth}" 
+                         justifyContent="Center" alignItems="Center"
+                         class="gantt-day-border gantt-no-shrink">
+                    
+                    <Text text="{viewConfig>dayLabel}" 
+                          visible="{= ${viewConfig>dayLabel} !== ''}"
+                          wrapping="false"
+                          />
+                          
+                </FlexBox>
+                                    </items>
+                                </HBox>
+                            </items>
+                        </HBox>
+                    </VBox>
+                </t:label>
+
                 <t:template>
-                    <ObjectStatus 
-                        text="{viewData>StatusText}"
-                        state="{viewData>StatusState}"/>
+                    <FlexBox width="{viewConfig>/totalWidth}" 
+                             renderType="Bare" 
+                             class="gantt-cell-container" 
+                             alignItems="Center">
+                        
+                        <core:HTML content='&lt;div style="width: {path: &apos;viewData>PlanStartDate&apos;, formatter: &apos;.calcMargin&apos;}; flex-shrink: 0;"&gt;&lt;/div&gt;' />
+
+                        <FlexBox visible="{= ${viewData>Type} === 'WBS'}"
+                                 width="{parts: ['viewData>PlanStartDate', 'viewData>PlanEndDate'], formatter: '.calcWidth'}"
+                                 class="gantt-bar-phase gantt-no-shrink"
+                                 renderType="Bare">                               
+                        </FlexBox>
+
+                        <FlexBox visible="{= ${viewData>Type} === 'PLAN'}"
+                                 width="{parts: ['viewData>PlanStartDate', 'viewData>PlanEndDate'], formatter: '.calcWidth'}"
+                                 class="gantt-bar-task gantt-no-shrink"
+                                 alignItems="Center"
+                                 renderType="Bare">
+                             <Text text="NC [{path: 'viewData>PlanQty', type: 'sap.ui.model.type.Integer'}]" 
+                                   class="gantt-bar-end-label" />
+                        </FlexBox>
+                        
+                    </FlexBox>
                 </t:template>
             </t:Column>
         </t:columns>
