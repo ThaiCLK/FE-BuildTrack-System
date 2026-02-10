@@ -4,7 +4,7 @@ sap.ui.define([
     "sap/m/MessageToast",
     "sap/m/MessageBox",
     "sap/ui/core/routing/History",
-    "com/bts/zbts/controller/delegate/WBSDelegate" // Đảm bảo đường dẫn này đúng
+    "com/bts/zbts/controller/delegate/WBSDelegate"
 ], function (Controller, JSONModel, MessageToast, MessageBox, History, WBSDelegate) {
     "use strict";
 
@@ -47,10 +47,8 @@ sap.ui.define([
         },
 
         onInit: function () {
-            // 1. Khởi tạo Delegate
             this._oWBSDelegate = new WBSDelegate(this);
 
-            // 2. Khởi tạo Model cấu hình hiển thị (Fix lỗi CSSSize render lần đầu)
             var oViewConfig = new JSONModel({
                 visible: { btnSave: true },
                 totalWidth: "100%",
@@ -62,15 +60,14 @@ sap.ui.define([
             oRouter.getRoute("RouteProjectDetail").attachPatternMatched(this._onObjectMatched, this);
         },
 
-        // --- CÁC HÀM CẦU NỐI ĐỂ FRAGMENT GỌI ĐƯỢC FORMATTER TRONG DELEGATE ---
         calcMargin: function (sStart) {
-            if (!sStart) return "0px"; // Bắt buộc trả về 0px nếu null
+            if (!sStart) return "0px";
             var sResult = this._oWBSDelegate.calcMargin(sStart);
             return sResult ? sResult : "0px";
         },
 
         calcWidth: function (sStart, sEnd) {
-            if (!sStart || !sEnd) return "0px"; // Bắt buộc trả về 0px nếu null
+            if (!sStart || !sEnd) return "0px";
             var sResult = this._oWBSDelegate.calcWidth(sStart, sEnd);
             return sResult ? sResult : "0px";
         },
@@ -102,7 +99,6 @@ sap.ui.define([
                 success: function (oData) {
                     oView.setBusy(false);
 
-                    // === SET DỮ LIỆU WBS TRƯỚC TIÊN ĐỂ KHÔNG BAO GIỜ "No data" ===
                     var aFlatWBS = (oData.NavWBS && oData.NavWBS.results) ? oData.NavWBS.results : [];
                     var aTreeData = this._transformToTree(aFlatWBS);
 
@@ -114,7 +110,6 @@ sap.ui.define([
                     });
                     oView.setModel(oDetailModel, "viewData");
 
-                    // === Tính Gantt sau, có try-catch ===
                     try {
                         var oGanttConfig = this._oWBSDelegate.prepareGanttData(aTreeData);
                         this.getView().getModel("viewConfig").setData(oGanttConfig || {
@@ -155,7 +150,7 @@ sap.ui.define([
                             CustomId: plan.PlanId,
                             StatusText: "Đã lập lịch",
                             StatusState: "Success",
-                            PlanStartDate: plan.PlanStartDate, // Mapping chuẩn OData
+                            PlanStartDate: plan.PlanStartDate,
                             PlanEndDate: plan.PlanEndDate,
                             children: []
                         };
@@ -185,6 +180,57 @@ sap.ui.define([
             return tree;
         },
 
+        onGanttTaskClick: function (oEvent) {
+            // 1. Lấy Context của dòng được click
+            var oRowContext = oEvent.getParameter("rowBindingContext");
+            if (!oRowContext) {
+                return; // Click vào vùng trắng không có dữ liệu
+            }
+
+            // 2. Lấy dữ liệu dòng đó
+            var oData = oRowContext.getObject();
+
+            // 3. (Tùy chọn) Chỉ hiện popup nếu click vào Task (Type = PLAN), bỏ qua WBS Folder
+            if (oData.Type !== "PLAN") {
+                return;
+            }
+
+            // 4. Lấy DOM reference của ô được click để định vị Popover hiển thị ngay tại đó
+            var oControl = oEvent.getParameter("cellDomRef");
+
+            // 5. Load Fragment và hiển thị
+            var oView = this.getView();
+
+            // Kiểm tra xem Popover đã được tạo chưa, nếu chưa thì tạo mới
+            if (!this._pWBSPopover) {
+                this._pWBSPopover = sap.ui.core.Fragment.load({
+                    id: oView.getId(),
+                    name: "com.bts.zbts.view.fragments.WBSDetailPopover", // Đường dẫn đến file ở Bước 1
+                    controller: this
+                }).then(function (oPopover) {
+                    oView.addDependent(oPopover); // Kết nối với View để dùng chung Model
+                    return oPopover;
+                }.bind(this));
+            }
+
+            this._pWBSPopover.then(function (oPopover) {
+                // Bind Element: Gán dữ liệu của dòng vừa click vào Popover
+                oPopover.bindElement({
+                    path: oRowContext.getPath(),
+                    model: "viewData" // Tên model chứa dữ liệu WBS
+                });
+
+                // Mở Popover ngay tại vị trí click
+                oPopover.openBy(oControl);
+            });
+        },
+
+        // Hàm đóng Popover (gắn vào nút Đóng trong Fragment)
+        onCloseWBSPopover: function () {
+            this._pWBSPopover.then(function (oPopover) {
+                oPopover.close();
+            });
+        },
         onNavBack: function () {
             var oHistory = History.getInstance();
             if (oHistory.getPreviousHash() !== undefined) {

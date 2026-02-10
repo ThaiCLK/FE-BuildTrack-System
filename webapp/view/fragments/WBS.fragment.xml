@@ -8,7 +8,8 @@
         selectionMode="Single"
         visibleRowCount="21"
         rowHeight="30"
-        class="myCustomWideContent">
+        class="myCustomWideContent"
+        cellClick=".onGanttTaskClick">
 
         <t:columns>
             <t:Column width="18rem">
