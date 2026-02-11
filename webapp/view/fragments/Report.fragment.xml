@@ -1,3 +1,167 @@
-<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
-    <Text text="Charts and Reports go here." class="sapUiSmallMargin"/>
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:uxap="sap.uxap"
+    xmlns:layout="sap.ui.layout"
+    xmlns:form="sap.ui.layout.form">
+
+    <uxap:ObjectPageLayout id="ObjectPageLayout" showTitleInHeaderContent="true" showHeaderContent="true" showFooter="true">
+        
+        <uxap:headerTitle>
+            <uxap:ObjectPageDynamicHeaderTitle>
+                <uxap:expandedHeading>
+                    <Title text="Thi công cọc khoan nhồi D1200 (Trục A-1)" wrapping="true" />
+                </uxap:expandedHeading>
+
+                <uxap:snappedHeading>
+                    <Title text="WBS-FD-01" wrapping="true" />
+                </uxap:snappedHeading>
+
+                <uxap:expandedContent>
+                    <Label text="Mã hạng mục: WBS-FD-01"/>
+                </uxap:expandedContent>
+
+                <uxap:snappedContent>
+                    <Label text="Dự án: Vinhomes Smart City"/>
+                </uxap:snappedContent>
+
+                <uxap:actions>
+                    <Button text="Lưu nháp" type="Transparent" icon="sap-icon://save"/>
+                    <Button text="Gửi duyệt (Submit)" type="Emphasized" icon="sap-icon://paper-plane"/>
+                    <Button text="Xóa" type="Reject" icon="sap-icon://delete"/>
+                </uxap:actions>
+
+            </uxap:ObjectPageDynamicHeaderTitle>
+        </uxap:headerTitle>
+
+        <uxap:headerContent>
+            <FlexBox wrap="Wrap" fitContainer="true">
+                <layout:VerticalLayout class="sapUiSmallMarginBeginEnd">
+                    <Label text="Dự án" design="Bold"/>
+                    <Text text="Vinhomes Smart City - Phân khu S1"/>
+                </layout:VerticalLayout>
+
+                <layout:VerticalLayout class="sapUiSmallMarginBeginEnd">
+                    <Label text="Giai đoạn nghiệm thu" design="Bold"/>
+                    <Text text="01/02/2026 - 07/02/2026"/>
+                </layout:VerticalLayout>
+
+                <layout:VerticalLayout class="sapUiSmallMarginBeginEnd">
+                    <Label text="Người phụ trách" design="Bold"/>
+                    <Link text="Nguyễn Văn A (LEARN-553)"/>
+                </layout:VerticalLayout>
+
+                <layout:VerticalLayout class="sapUiSmallMarginBeginEnd">
+                    <ObjectStatus title="Trạng thái" text="DRAFT (Nháp)" state="Information" inverted="true" icon="sap-icon://edit" />
+                </layout:VerticalLayout>
+            </FlexBox>
+        </uxap:headerContent>
+
+        <uxap:sections>
+
+            <uxap:ObjectPageSection titleUppercase="false" title="I. Khối lượng thực hiện">
+                <uxap:subSections>
+                    <uxap:ObjectPageSubSection>
+                        <uxap:blocks>
+                            <form:SimpleForm editable="true" layout="ResponsiveGridLayout" 
+                                labelSpanXL="4" labelSpanL="4" labelSpanM="4" labelSpanS="12" 
+                                columnsXL="2" columnsL="2" columnsM="1">
+                                <form:content>
+                                    <core:Title text="Số liệu nghiệm thu kỳ này" />
+                                    
+                                    <Label text="Đơn vị tính (Unit)" />
+                                    <Input value="m3" editable="false" width="30%"/>
+
+                                    <Label text="Khối lượng lũy kế kỳ trước" />
+                                    <Input value="200" editable="false" description="m3"/>
+
+                                    <Label text="Khối lượng thực hiện kỳ này" required="true"/>
+                                    <Input value="150" type="Number" description="m3" fieldWidth="60%"/>
+
+                                    <Label text="Tổng khối lượng hoàn thành" design="Bold"/>
+                                    <Input value="350" editable="false" description="m3" valueState="Success" valueStateText="Đã cộng dồn tự động"/>
+                                    
+                                    <core:Title text="Ghi chú &amp; Diễn giải" />
+                                    <Label text="Mô tả công việc" />
+                                    <TextArea rows="3" value="Đã hoàn thành khoan 3 cọc D1200 tại trục A-1, A-2, A-3. Bê tông đạt mác M300." width="100%"/>
+
+                                </form:content>
+                            </form:SimpleForm>
+                        </uxap:blocks>
+                    </uxap:ObjectPageSubSection>
+                </uxap:subSections>
+            </uxap:ObjectPageSection>
+
+            <uxap:ObjectPageSection titleUppercase="false" title="II. Đánh giá tiến độ (So với Plan)">
+                <uxap:subSections>
+                    <uxap:ObjectPageSubSection>
+                        <uxap:blocks>
+                            <layout:VerticalLayout width="100%">
+                                <HBox justifyContent="SpaceBetween" class="sapUiSmallMarginBottom">
+                                    <Label text="Tiến độ hoàn thành (WBS Plan: 1000 m3)" design="Bold"/>
+                                    <ObjectStatus text="35%" state="Success" />
+                                </HBox>
+                                
+                                <ProgressIndicator
+                                    percentValue="35"
+                                    displayValue="350 / 1000 m3"
+                                    showValue="true"
+                                    state="Success"
+                                    height="1.5rem"/>
+                                    
+                                <layout:Grid defaultSpan="L6 M6 S12" class="sapUiMediumMarginTop">
+                                    <layout:content>
+                                        <VBox>
+                                            <Label text="Kế hoạch (Planned)" class="sapUiTinyMarginBottom"/>
+                                            <ObjectNumber number="1000" unit="m3" state="None" />
+                                        </VBox>
+                                        <VBox>
+                                            <Label text="Còn lại (Remaining)" class="sapUiTinyMarginBottom"/>
+                                            <ObjectNumber number="650" unit="m3" state="Warning" />
+                                        </VBox>
+                                    </layout:content>
+                                </layout:Grid>
+                            </layout:VerticalLayout>
+                        </uxap:blocks>
+                    </uxap:ObjectPageSubSection>
+                </uxap:subSections>
+            </uxap:ObjectPageSection>
+            
+            <uxap:ObjectPageSection titleUppercase="false" title="III. Lịch sử phê duyệt">
+                 <uxap:subSections>
+                    <uxap:ObjectPageSubSection>
+                        <uxap:blocks>
+                             <List headerText="Nhật ký xử lý">
+                                <FeedListItem
+                                    sender="Nguyễn Văn A (Kỹ sư)"
+                                    icon="sap-icon://employee"
+                                    info="Tạo mới"
+                                    timestamp="10/02/2026 08:30"
+                                    text="Đã tạo hồ sơ nghiệm thu đợt 1."
+                                    convertLinksToAnchorTags="All"/>
+                                <FeedListItem
+                                    sender="Trần Văn B (TVGS)"
+                                    icon="sap-icon://manager"
+                                    info="Yêu cầu sửa đổi"
+                                    timestamp="10/02/2026 09:15"
+                                    text="Đề nghị bổ sung hình ảnh chụp hiện trường cọc số 3."
+                                    convertLinksToAnchorTags="All"/>
+                            </List>
+                        </uxap:blocks>
+                    </uxap:ObjectPageSubSection>
+                </uxap:subSections>
+            </uxap:ObjectPageSection>
+
+        </uxap:sections>
+
+        <uxap:footer>
+            <OverflowToolbar>
+                <Button icon="sap-icon://message-popup" text="Tin nhắn (2)" type="Emphasized"/>
+                <ToolbarSpacer/>
+                <Button type="Accept" text="Gửi duyệt ngay"/>
+                <Button type="Reject" text="Hủy bỏ"/>
+            </OverflowToolbar>
+        </uxap:footer>
+
+    </uxap:ObjectPageLayout>
 </core:FragmentDefinition>
