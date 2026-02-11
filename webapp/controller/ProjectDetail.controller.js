@@ -4,51 +4,23 @@ sap.ui.define([
     "sap/m/MessageToast",
     "sap/m/MessageBox",
     "sap/ui/core/routing/History",
-    "com/bts/zbts/controller/delegate/WBSDelegate"
-], function (Controller, JSONModel, MessageToast, MessageBox, History, WBSDelegate) {
+    "com/bts/zbts/controller/delegate/WBSDelegate",
+    "sap/ui/core/Fragment",
+    "sap/ui/core/format/DateFormat"
+], function (Controller, JSONModel, MessageToast, MessageBox, History, WBSDelegate, Fragment, DateFormat) {
     "use strict";
 
     return Controller.extend("com.bts.zbts.controller.ProjectDetail", {
 
-        isMilestone: function (sStart, sEnd) {
-            if (!sStart || !sEnd) return false;
-            var dStart = this._parseDate(sStart);
-            var dEnd = this._parseDate(sEnd);
-            if (!dStart || !dEnd || isNaN(dStart) || isNaN(dEnd)) return false;
-            return dStart.toDateString() === dEnd.toDateString();
-        },
-
-        calcLeft: function (sStart, sEnd) {
-            if (!sStart) return "0px";
-            var baseMargin = this.calcMargin(sStart);
-            if (this.isMilestone(sStart, sEnd)) {
-                var pixels = this._oWBSDelegate._pixelsPerDay || 20;
-                var offset = pixels / 2 - 8; // center milestone (16px width)
-                return (parseFloat(baseMargin) + offset) + "px";
-            }
-            return baseMargin;
-        },
-
-        isNormalBar: function (sStart, sEnd) {
-            return !!sStart && !!sEnd && !this.isMilestone(sStart, sEnd);
-        },
-
-        isMilestoneVisible: function (sStart, sEnd) {
-            return !!sStart && !!sEnd && this.isMilestone(sStart, sEnd);
-        },
-        _parseDate: function (sDate) {
-            if (!sDate) return null;
-            var parts = sDate.split('/');
-            if (parts.length === 3) {
-                // dd/mm/yyyy → year, month-1, day
-                return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-            }
-            return new Date(sDate); // fallback
-        },
+        /* =========================================================== */
+        /* LIFECYCLE METHODS                                           */
+        /* =========================================================== */
 
         onInit: function () {
+            // Khởi tạo Delegate để xử lý toàn bộ logic Gantt/WBS
             this._oWBSDelegate = new WBSDelegate(this);
 
+            // Model cấu hình giao diện tổng thể
             var oViewConfig = new JSONModel({
                 visible: { btnSave: true },
                 totalWidth: "100%",
@@ -60,25 +32,9 @@ sap.ui.define([
             oRouter.getRoute("RouteProjectDetail").attachPatternMatched(this._onObjectMatched, this);
         },
 
-        calcMargin: function (sStart) {
-            if (!sStart) return "0px";
-            var sResult = this._oWBSDelegate.calcMargin(sStart);
-            return sResult ? sResult : "0px";
-        },
-
-        calcWidth: function (sStart, sEnd) {
-            if (!sStart || !sEnd) return "0px";
-            var sResult = this._oWBSDelegate.calcWidth(sStart, sEnd);
-            return sResult ? sResult : "0px";
-        },
-
-        formatDate: function (dateValue) {
-            if (!dateValue) return "";
-            var oDate = new Date(dateValue);
-            return oDate.toLocaleDateString('vi-VN', {
-                day: '2-digit', month: '2-digit', year: 'numeric'
-            });
-        },
+        /* =========================================================== */
+        /* ROUTING & DATA LOADING                                      */
+        /* =========================================================== */
 
         _onObjectMatched: function (oEvent) {
             var sProjectID = oEvent.getParameter("arguments").projectID;
@@ -99,9 +55,11 @@ sap.ui.define([
                 success: function (oData) {
                     oView.setBusy(false);
 
+                    /* --- PHẦN WBS LOGIC: Đã chuyển sang Delegate --- */
                     var aFlatWBS = (oData.NavWBS && oData.NavWBS.results) ? oData.NavWBS.results : [];
-                    var aTreeData = this._transformToTree(aFlatWBS);
+                    var aTreeData = this._transformToTree(aFlatWBS); // Chuyển đổi dữ liệu cây
 
+                    // Model hiển thị dữ liệu lên màn hình
                     var oDetailModel = new JSONModel({
                         ProjectId: oData.ProjectId || "",
                         ProjectCode: oData.ProjectCode || "",
@@ -110,66 +68,51 @@ sap.ui.define([
                     });
                     oView.setModel(oDetailModel, "viewData");
 
+                    // Tính toán Gantt thông qua Delegate
                     try {
                         var oGanttConfig = this._oWBSDelegate.prepareGanttData(aTreeData);
-                        this.getView().getModel("viewConfig").setData(oGanttConfig || {
-                            timeScale: [],
-                            dayScale: [],
-                            totalWidth: "4000px",
-                            pixelsPerDay: 20
-                        }, true);
+                        this.getView().getModel("viewConfig").setData(oGanttConfig, true);
                     } catch (e) {
-                        console.error("Gantt error:", e);
-                        this.getView().getModel("viewConfig").setData({
-                            timeScale: [],
-                            dayScale: [],
-                            totalWidth: "4000px",
-                            pixelsPerDay: 20
-                        }, true);
+                        console.error("Gantt computation failed:", e);
                     }
+                    /* ----------------------------------------------- */
+
                 }.bind(this),
-                error: function (oError) {
+                error: function () {
                     oView.setBusy(false);
                     MessageBox.error("Không thể tải dữ liệu dự án.");
                 }
             });
         },
 
+        /**
+         * Chuyển đổi OData Results thành cấu trúc lồng nhau
+         * (Note: Có thể move hàm này vào Delegate nếu muốn Controller sạch hơn nữa)
+         */
         _transformToTree: function (arr) {
             var nodes = {};
             var tree = [];
-
             arr.forEach(function (obj) {
                 var aPlans = [];
                 if (obj.NavWBSPlan && obj.NavWBSPlan.results) {
                     aPlans = obj.NavWBSPlan.results.map(function (plan) {
-                        return {
-                            ...plan,
+                        return Object.assign({}, plan, {
                             Type: 'PLAN',
-                            DisplayName: plan.WbsPlanName || "Không có tiêu đề",
+                            DisplayName: plan.WbsPlanName || "No Title",
                             CustomId: plan.PlanId,
                             StatusText: "Đã lập lịch",
                             StatusState: "Success",
-                            PlanStartDate: plan.PlanStartDate,
-                            PlanEndDate: plan.PlanEndDate,
                             children: []
-                        };
+                        });
                     });
                 }
-
-                nodes[obj.WbsId] = {
-                    ...obj,
-                    Type: 'WBS',
-                    DisplayName: obj.WbsName,
-                    CustomId: obj.WbsCode,
+                nodes[obj.WbsId] = Object.assign({}, obj, {
+                    Type: 'WBS', DisplayName: obj.WbsName, CustomId: obj.WbsCode,
                     StatusText: obj.IsActive ? 'Hoạt động' : 'Đã đóng',
                     StatusState: obj.IsActive ? 'Success' : 'Error',
-                    PlanStartDate: obj.PlanStartDate,
-                    PlanEndDate: obj.PlanEndDate,
                     children: aPlans
-                };
+                });
             });
-
             arr.forEach(function (obj) {
                 if (obj.ParentId && nodes[obj.ParentId]) {
                     nodes[obj.ParentId].children.push(nodes[obj.WbsId]);
@@ -180,57 +123,34 @@ sap.ui.define([
             return tree;
         },
 
+        /* =========================================================== */
+        /* WBS & GANTT HELPERS (Bridge to Delegate)                    */
+        /* =========================================================== */
+        // Các hàm này được View XML gọi, Controller đóng vai trò trung gian gọi Delegate
+
+        calcMargin: function (sStart) {
+            return this._oWBSDelegate.calcMargin(sStart) || "0px";
+        },
+
+        calcWidth: function (sStart, sEnd) {
+            return this._oWBSDelegate.calcWidth(sStart, sEnd) || "0px";
+        },
+
+        /* =========================================================== */
+        /* EVENT HANDLERS (WBS & POPOVER)                              */
+        /* =========================================================== */
+
         onGanttTaskClick: function (oEvent) {
-            // 1. Lấy Context của dòng được click
-            var oRowContext = oEvent.getParameter("rowBindingContext");
-            if (!oRowContext) {
-                return; // Click vào vùng trắng không có dữ liệu
-            }
-
-            // 2. Lấy dữ liệu dòng đó
-            var oData = oRowContext.getObject();
-
-            // 3. (Tùy chọn) Chỉ hiện popup nếu click vào Task (Type = PLAN), bỏ qua WBS Folder
-            if (oData.Type !== "PLAN") {
-                return;
-            }
-
-            // 4. Lấy DOM reference của ô được click để định vị Popover hiển thị ngay tại đó
-            var oControl = oEvent.getParameter("cellDomRef");
-
-            // 5. Load Fragment và hiển thị
-            var oView = this.getView();
-
-            // Kiểm tra xem Popover đã được tạo chưa, nếu chưa thì tạo mới
-            if (!this._pWBSPopover) {
-                this._pWBSPopover = sap.ui.core.Fragment.load({
-                    id: oView.getId(),
-                    name: "com.bts.zbts.view.fragments.WBSDetailPopover", // Đường dẫn đến file ở Bước 1
-                    controller: this
-                }).then(function (oPopover) {
-                    oView.addDependent(oPopover); // Kết nối với View để dùng chung Model
-                    return oPopover;
-                }.bind(this));
-            }
-
-            this._pWBSPopover.then(function (oPopover) {
-                // Bind Element: Gán dữ liệu của dòng vừa click vào Popover
-                oPopover.bindElement({
-                    path: oRowContext.getPath(),
-                    model: "viewData" // Tên model chứa dữ liệu WBS
-                });
-
-                // Mở Popover ngay tại vị trí click
-                oPopover.openBy(oControl);
-            });
+            this._oWBSDelegate.onOpenWBSPopover(oEvent, this);
         },
 
-        // Hàm đóng Popover (gắn vào nút Đóng trong Fragment)
         onCloseWBSPopover: function () {
-            this._pWBSPopover.then(function (oPopover) {
-                oPopover.close();
-            });
-        },
+            this._oWBSDelegate.onClosePopover();
+        }  ,
+        /* =========================================================== */
+        /* GENERAL ACTIONS & FORMATTERS                                */
+        /* =========================================================== */
+
         onNavBack: function () {
             var oHistory = History.getInstance();
             if (oHistory.getPreviousHash() !== undefined) {
@@ -240,8 +160,19 @@ sap.ui.define([
             }
         },
 
-        onAddNewTask: function () { MessageBox.information("Chức năng demo"); },
-        onDeleteTask: function () { MessageBox.warning("Chức năng demo"); },
-        onSaveProject: function () { MessageToast.show("Đã lưu thay đổi"); }
+        formatDate: function (dateValue) {
+            if (!dateValue) return "";
+            return DateFormat.getDateInstance({ pattern: "dd/MM/yyyy" }).format(new Date(dateValue));
+        },
+
+        formatTime: function (oTime) {
+            if (!oTime) return "";
+            var oTimeFormat = DateFormat.getTimeInstance({ pattern: "HH:mm:ss" });
+            if (oTime.ms !== undefined) return oTimeFormat.format(new Date(oTime.ms), true);
+            return oTimeFormat.format(oTime instanceof Date ? oTime : new Date(oTime));
+        },
+
+        onSaveProject: function () { MessageToast.show("Đã lưu thay đổi"); },
+        onAddNewTask: function () { MessageBox.information("Chức năng demo"); }
     });
 });

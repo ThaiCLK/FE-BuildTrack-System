@@ -19,7 +19,7 @@
                 
                 <items>
                     <IconTabFilter icon="sap-icon://tree" text="WBS" key="wbs">
-                        <core:Fragment fragmentName="com.bts.zbts.view.fragments.WBS" type="XML" />
+                        <core:Fragment fragmentName="com.bts.zbts.view.fragments.wbs.WBS" type="XML" />
                     </IconTabFilter>
 
                     <IconTabFilter icon="sap-icon://map" text="Location" key="loc">

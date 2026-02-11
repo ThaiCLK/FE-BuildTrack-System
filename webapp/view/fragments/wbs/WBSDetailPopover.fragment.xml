@@ -25,9 +25,7 @@
                     <Label text="Thời gian kế hoạch" />
                     <Text text="{path: 'viewData>PlanStartDate', formatter: '.formatDate'} - {path: 'viewData>PlanEndDate', formatter: '.formatDate'}" />
                     <Label text="Plan Quantity" />
-                    <Text text="{path: 'viewData>PlanQty', type: 'sap.ui.model.type.Integer'} {viewData>UNIT_CODE}" />
-                    <Label text="Unit Code" />
-                    <Text text="{viewData>UnitCode}" />
+                    <Text text="{path: 'viewData>PlanQty', type: 'sap.ui.model.type.Integer'}" />
                     <Label text="Status" />
                     <ObjectStatus 
                         text="{viewData>Status}" 
@@ -37,13 +35,13 @@
                     <Label text="Create on" />
                     <Text text="{path: 'viewData>CreatedOn', formatter: '.formatDate'}" />
                     <Label text="Create at" />
-                    <Text text="{path: 'viewData>CreatedAt', formatter: '.formatDate'}" />
+                    <Text text="{path: 'viewData>CreatedAt', formatter: '.formatTime'}" />
                     <Label text="Update by" />
-                    <Text text="{'viewData>UpdatedBy'}" />
+                    <Text text="{viewData>UpdatedBy}" />
                     <Label text="Update on" />
                     <Text text="{path: 'viewData>UpdatedOn', formatter: '.formatDate'}" />
                     <Label text="Update at" />
-                    <Text text="{path: 'viewData>UpdatedAt', formatter: '.formatDate'}" />
+                    <Text text="{path: 'viewData>UpdatedAt', formatter: '.formatTime'}" />
                 </form:content>
             </form:SimpleForm>
         </content>

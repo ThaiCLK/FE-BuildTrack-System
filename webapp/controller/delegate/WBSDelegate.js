@@ -1,6 +1,7 @@
 sap.ui.define([
-    "sap/ui/base/Object"
-], function (BaseObject) {
+    "sap/ui/base/Object",
+    "sap/ui/core/Fragment"
+], function (BaseObject, Fragment) {
     "use strict";
 
     const CONFIG = {
@@ -9,11 +10,20 @@ sap.ui.define([
     };
 
     return BaseObject.extend("com.bts.zbts.controller.delegate.WBSDelegate", {
+
         constructor: function (oController) {
             this._pixelsPerDay = CONFIG.PIXELS_PER_DAY;
             this._dChartStartDate = null;
+            this._pWBSPopover = null;
         },
 
+        /* =========================================================== */
+        /* PRIVATE HELPERS                                             */
+        /* =========================================================== */
+
+        /**
+         * Chuyển đổi giá trị đầu vào thành đối tượng Date (hỗ trợ string, timestamp, Date)
+         */
         _parseDate: function (value) {
             if (!value) return null;
             if (value instanceof Date) return value;
@@ -28,6 +38,21 @@ sap.ui.define([
             return null;
         },
 
+        /* =========================================================== */
+        /* DATA PROCESSING                                             */
+        /* =========================================================== */
+
+        /**
+         * Hàm tổng hợp: Tính toán lại ngày cho WBS và khởi tạo cấu hình Gantt
+         */
+        prepareGanttData: function (aNodes) {
+            this._enrichWbsDates(aNodes || []);
+            return this._calculateGanttLogic(aNodes || []);
+        },
+
+        /**
+         * Tính toán ngày Start/End cho các node cha (WBS) dựa trên min/max của các node con
+         */
         _enrichWbsDates: function (aNodes) {
             var that = this;
             aNodes.forEach(function (node) {
@@ -41,12 +66,8 @@ sap.ui.define([
                         var dStart = that._parseDate(child.PlanStartDate);
                         var dEnd = that._parseDate(child.PlanEndDate);
 
-                        if (dStart) {
-                            if (!minStart || dStart < minStart) minStart = dStart;
-                        }
-                        if (dEnd) {
-                            if (!maxEnd || dEnd > maxEnd) maxEnd = dEnd;
-                        }
+                        if (dStart && (!minStart || dStart < minStart)) minStart = dStart;
+                        if (dEnd && (!maxEnd || dEnd > maxEnd)) maxEnd = dEnd;
                     });
 
                     if (minStart) node.PlanStartDate = minStart;
@@ -55,11 +76,9 @@ sap.ui.define([
             });
         },
 
-        prepareGanttData: function (aNodes) {
-            this._enrichWbsDates(aNodes || []);
-            return this._calculateGanttLogic(aNodes || []);
-        },
-
+        /**
+         * Xác định phạm vi ngày của toàn bộ Chart và tạo dữ liệu TimeScale
+         */
         _calculateGanttLogic: function (aNodes) {
             var minDate = null;
             var maxDate = null;
@@ -78,9 +97,7 @@ sap.ui.define([
                         if (!minDate || dEnd < minDate) minDate = dEnd;
                         if (!maxDate || dEnd > maxDate) maxDate = dEnd;
                     }
-                    if (node.children && node.children.length > 0) {
-                        collectDates(node.children);
-                    }
+                    if (node.children && node.children.length > 0) collectDates(node.children);
                 });
             };
 
@@ -89,10 +106,12 @@ sap.ui.define([
             minDate = minDate || new Date();
             maxDate = maxDate || new Date();
 
+            // Bắt đầu từ đầu tháng của ngày sớm nhất
             var chartStart = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
             chartStart.setHours(0, 0, 0, 0);
             this._dChartStartDate = chartStart;
 
+            // Kết thúc vào cuối tháng (cộng thêm 2 tháng đệm)
             var chartEnd = new Date(maxDate.getFullYear(), maxDate.getMonth() + 2, 0);
             chartEnd.setHours(0, 0, 0, 0);
 
@@ -105,11 +124,13 @@ sap.ui.define([
             };
         },
 
+        /**
+         * Sinh dữ liệu các cột tháng và ngày cho Header của Gantt
+         */
         _generateTimeScale: function (dStart, dEnd) {
             var timeScale = [];
             var totalDays = 0;
             var current = new Date(dStart);
-
             var MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
             while (current.getTime() <= dEnd.getTime()) {
@@ -132,11 +153,8 @@ sap.ui.define([
                     iterDate.setDate(iterDate.getDate() + 1);
                 }
 
-                var shortYear = String(currentYear);
-                var engMonthLabel = MONTH_NAMES[currentMonth] + " " + shortYear;
-
                 timeScale.push({
-                    monthLabel: engMonthLabel,
+                    monthLabel: MONTH_NAMES[currentMonth] + " " + currentYear,
                     monthWidth: (daysInThisMonth.length * this._pixelsPerDay) + "px",
                     days: daysInThisMonth
                 });
@@ -149,25 +167,80 @@ sap.ui.define([
             };
         },
 
+        /* =========================================================== */
+        /* GANTT CALCULATIONS (Formatters)                             */
+        /* =========================================================== */
+
+        /**
+         * Tính toán khoảng cách từ lề trái chart đến điểm bắt đầu của task
+         */
         calcMargin: function (sStart) {
             if (!sStart || !this._dChartStartDate) return "0px";
             var dStart = this._parseDate(sStart);
             if (!dStart) return "0px";
+
             dStart.setHours(0, 0, 0, 0);
             var diffDays = Math.round((dStart - this._dChartStartDate) / (1000 * 60 * 60 * 24));
             if (diffDays < 0) diffDays = 0;
+
             return (diffDays * this._pixelsPerDay) + "px";
         },
 
+        /**
+         * Tính toán chiều rộng của thanh task dựa trên số ngày làm việc
+         */
         calcWidth: function (sStart, sEnd) {
             if (!sStart || !sEnd) return "0px";
             var dStart = this._parseDate(sStart);
             var dEnd = this._parseDate(sEnd);
             if (!dStart || !dEnd) return "0px";
+
             dStart.setHours(0, 0, 0, 0);
             dEnd.setHours(0, 0, 0, 0);
+            
             var diffDays = Math.round((dEnd.getTime() - dStart.getTime()) / (1000 * 3600 * 24));
             return ((diffDays + 1) * this._pixelsPerDay) + "px";
+        },
+
+        /* =========================================================== */
+        /* UI HANDLERS                                                 */
+        /* =========================================================== */
+
+        /**
+         * Logic nạp và hiển thị Popover chi tiết
+         */
+        onOpenWBSPopover: function (oEvent, oController) {
+            var oRowContext = oEvent.getParameter("rowBindingContext");
+            var oControl = oEvent.getParameter("cellDomRef");
+
+            if (!oRowContext || oRowContext.getObject().Type !== "PLAN") return;
+
+            var oView = oController.getView();
+
+            if (!this._pWBSPopover) {
+                this._pWBSPopover = Fragment.load({
+                    id: oView.getId(),
+                    name: "com.bts.zbts.view.fragments.wbs.WBSDetailPopover",
+                    controller: oController 
+                }).then(function (oPopover) {
+                    oView.addDependent(oPopover);
+                    return oPopover;
+                });
+            }
+
+            this._pWBSPopover.then(function (oPopover) {
+                oPopover.bindElement({ path: oRowContext.getPath(), model: "viewData" });
+                oPopover.openBy(oControl);
+            });
+        },
+
+        /**
+         * Đóng Popover đang hiển thị
+         */
+        onClosePopover: function () {
+            if (this._pWBSPopover) {
+                this._pWBSPopover.then(function (oPopover) { oPopover.close(); });
+            }
         }
     });
 });
