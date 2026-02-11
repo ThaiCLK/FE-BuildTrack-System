@@ -33,6 +33,9 @@
                     <IconTabFilter icon="sap-icon://manager-insight" text="Report" key="rep">
                          <core:Fragment fragmentName="com.bts.zbts.view.fragments.Report" type="XML" />
                     </IconTabFilter>
+                    <IconTabFilter icon="sap-icon://manager-insight" text="Report" key="rep">
+                         <core:Fragment fragmentName="com.bts.zbts.view.fragments.ReportLayout" type="XML" />
+                    </IconTabFilter>
                 </items>
             </IconTabBar>
         </content>
