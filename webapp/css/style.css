@@ -149,3 +149,31 @@
     font-size: 0.7rem;
     color: #333;
 }
+/* Hiệu ứng tờ giấy A4 */
+.paperA4 {
+    background-color: white !important;
+    padding: 40px;
+    max-width: 1000px; /* Độ rộng vừa phải */
+    margin: 20px auto !important; /* Căn giữa màn hình */
+    box-shadow: 0 0 15px rgba(0,0,0,0.2); /* Đổ bóng xung quanh */
+    border: 1px solid #ddd;
+}
+
+/* Con dấu chữ ký (Màu xanh) */
+.signatureStamp {
+    color: green;
+    font-weight: bold;
+    border: 3px double green; /* Viền đôi */
+    padding: 5px 15px;
+    border-radius: 4px;
+    transform: rotate(-3deg); /* Nghiêng nhẹ cho giống đóng dấu */
+    font-family: "Courier New", Courier, monospace;
+}
+
+/* Chờ ký (Màu xám) */
+.signaturePending {
+    color: #999;
+    font-style: italic;
+    border: 1px dashed #ccc;
+    padding: 5px;
+}
