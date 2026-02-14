@@ -12,6 +12,8 @@
             <OverflowToolbar design="Solid">
                 <Title text="Nhật ký ({= ${dailyLogModel>/ZLOG_WORK}.length || 0})" level="H3"/>
                 <ToolbarSpacer/>
+                <Button text="Download Template" icon="sap-icon://download" press=".onDownloadTemplate"/>
+                <Button text="Import Excel" icon="sap-icon://excel-attachment" type="Transparent" press=".onImportExcel"/>
                 <Button text="Thêm" icon="sap-icon://add" type="Emphasized" press=".onAddLog"/>
             </OverflowToolbar>
 
@@ -86,52 +88,51 @@
                             <layoutData><l:GridData span="XL2 L2 M2 S4"/></layoutData>
                         </Input>
 
-                        <core:Title text="Máy móc thiết bị" />
+                        <core:Title text="Máy móc thiết bị / Tài nguyên sử dụng" />
                         
-                        <Label text="Máy xúc (chiếc)" />
-                        <Input value="{dailyLogModel>eq_mayxuc}" type="Number" editable="{dailyLogModel>/ui/editMode}">
-                            <layoutData><l:GridData span="XL2 L2 M2 S4"/></layoutData>
-                        </Input>
-
-                        <Label text="Cần cẩu (chiếc)" />
-                        <Input value="{dailyLogModel>eq_cancau}" type="Number" editable="{dailyLogModel>/ui/editMode}">
-                            <layoutData><l:GridData span="XL2 L2 M2 S4"/></layoutData>
-                        </Input>
-
-                        <Label text="Búa đóng cọc (cái)" />
-                        <Input value="{dailyLogModel>eq_bua}" type="Number" editable="{dailyLogModel>/ui/editMode}">
-                            <layoutData><l:GridData span="XL2 L2 M2 S4"/></layoutData>
-                        </Input>
-
-                        <Label text="Máy lu (chiếc)" />
-                        <Input value="{dailyLogModel>eq_maylu}" type="Number" editable="{dailyLogModel>/ui/editMode}">
-                            <layoutData><l:GridData span="XL2 L2 M2 S4"/></layoutData>
-                        </Input>
-
-                        <Label text="Máy cắt uốn (cái)" />
-                        <Input value="{dailyLogModel>eq_catuon}" type="Number" editable="{dailyLogModel>/ui/editMode}">
-                            <layoutData><l:GridData span="XL2 L2 M2 S4"/></layoutData>
-                        </Input>
-
-                        <Label text="Máy hàn (cái)" />
-                        <Input value="{dailyLogModel>eq_mayhan}" type="Number" editable="{dailyLogModel>/ui/editMode}">
-                            <layoutData><l:GridData span="XL2 L2 M2 S4"/></layoutData>
-                        </Input>
-
-                        <Label text="Đầm dùi (cái)" />
-                        <Input value="{dailyLogModel>eq_damdui}" type="Number" editable="{dailyLogModel>/ui/editMode}">
-                            <layoutData><l:GridData span="XL2 L2 M2 S4"/></layoutData>
-                        </Input>
-
-                        <Label text="Ô tô (xe)" />
-                        <Input value="{dailyLogModel>eq_oto}" type="Number" editable="{dailyLogModel>/ui/editMode}">
-                            <layoutData><l:GridData span="XL2 L2 M2 S4"/></layoutData>
-                        </Input>
+                        <Label text=""/>
+                        <VBox>
+                            <Button 
+                                text="Thêm tài nguyên" 
+                                icon="sap-icon://add" 
+                                type="Transparent"
+                                visible="{dailyLogModel>/ui/editMode}"
+                                press=".onAddResourceInDetail"/>
+                            <Table 
+                                items="{dailyLogModel>resources}" 
+                                mode="{= ${dailyLogModel>/ui/editMode} ? 'Delete' : 'None' }"
+                                delete=".onDeleteResourceInDetail"
+                                width="100%">
+                                <columns>
+                                    <Column width="45%"><Text text="Tên tài nguyên"/></Column>
+                                    <Column width="30%"><Text text="Đơn vị"/></Column>
+                                    <Column width="25%"><Text text="Số lượng"/></Column>
+                                </columns>
+                                <items>
+                                    <ColumnListItem>
+                                        <cells>
+                                            <Input value="{dailyLogModel>resource_name}" editable="{dailyLogModel>/ui/editMode}"/>
+                                            <Input value="{dailyLogModel>unit}" editable="{dailyLogModel>/ui/editMode}"/>
+                                            <Input value="{dailyLogModel>quantity}" type="Number" editable="{dailyLogModel>/ui/editMode}"/>
+                                        </cells>
+                                    </ColumnListItem>
+                                </items>
+                            </Table>
+                        </VBox>
 
                         <core:Title text="Chi tiết thực hiện" />
                         
                         <Label text="Mô tả công việc" />
                         <TextArea value="{dailyLogModel>description}" rows="4" editable="{dailyLogModel>/ui/editMode}"/>
+
+                        <Label text="Note An toàn vệ sinh" />
+                        <TextArea value="{dailyLogModel>note_safety}" rows="3" editable="{dailyLogModel>/ui/editMode}" placeholder="Ghi chú về an toàn vệ sinh lao động"/>
+
+                        <Label text="Ý kiến tư vấn giám sát" />
+                        <TextArea value="{dailyLogModel>consultant_note}" rows="3" editable="{dailyLogModel>/ui/editMode}" placeholder="Ý kiến của tư vấn giám sát"/>
+
+                        <Label text="Ý kiến nhà thầu" />
+                        <TextArea value="{dailyLogModel>contractor_note}" rows="3" editable="{dailyLogModel>/ui/editMode}" placeholder="Ý kiến của nhà thầu thi công"/>
 
                     </f:content>
                 </f:SimpleForm>
