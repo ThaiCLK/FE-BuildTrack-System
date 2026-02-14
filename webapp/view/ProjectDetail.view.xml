@@ -22,7 +22,7 @@
                     </IconTabFilter>
 
                     <IconTabFilter icon="sap-icon://form" text="Nhật ký thi công" key="log">
-                         <core:Fragment fragmentName="com.bts.zbts.view.fragments.DailyLog" type="XML" />
+                         <mvc:XMLView viewName="com.bts.zbts.view.DailyLog" />
                     </IconTabFilter>
 
                     <IconTabFilter icon="sap-icon://manager-insight" text="Báo cáo" key="rep">
