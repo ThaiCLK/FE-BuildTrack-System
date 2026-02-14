@@ -21,50 +21,68 @@ sap.ui.define([
 
         _onObjectMatched: function (oEvent) {
             var sProjectID = oEvent.getParameter("arguments").projectID;
-            if (sProjectID) {
-                this._loadProjectData(sProjectID);
-            }
+            // Gọi hàm load giả lập
+            this._loadMockProjectData(sProjectID);
         },
 
-        _loadProjectData: function (sProjectID) {
+        _loadMockProjectData: function (sProjectID) {
             var oView = this.getView();
-            var oMainModel = this.getOwnerComponent().getModel(); 
-            
             oView.setBusy(true);
-            
-            var sPath = "/ProjectSet(ProjectId=guid'" + sProjectID + "')";
 
-            oMainModel.read(sPath, {
-                urlParameters: {
-                    "$expand": "NavWBS/NavWBSPlan" 
-                },
-                success: function (oData) {
-                    oView.setBusy(false);
+            // Giả lập độ trễ mạng
+            setTimeout(function() {
+                oView.setBusy(false);
 
-                    var aFlatWBS = (oData.NavWBS && oData.NavWBS.results) ? oData.NavWBS.results : [];
-                    var aTreeData = this._transformToTree(aFlatWBS);
+                // --- DỮ LIỆU MOCK CẤU TRÚC WBS ---
+                var aMockWBS = [
+                    {
+                        WbsId: "W1", WbsCode: "WBS-01", WbsName: "Hạng mục chung", ParentId: null, IsActive: true, CreatedOn: new Date(),
+                        NavWBSPlan: { results: [] }
+                    },
+                    {
+                        WbsId: "W1-1", WbsCode: "WBS-01.1", WbsName: "Chuẩn bị mặt bằng", ParentId: "W1", IsActive: true, CreatedOn: new Date(),
+                        NavWBSPlan: { results: [
+                            { PlanId: "P1", WbsPlanName: "Phát quang cây cối", PlanStartDate: new Date("2026-01-10"), PlanEndDate: new Date("2026-01-15") },
+                            { PlanId: "P2", WbsPlanName: "San lấp sơ bộ", PlanStartDate: new Date("2026-01-16"), PlanEndDate: new Date("2026-01-20") }
+                        ]}
+                    },
+                    {
+                        WbsId: "W2", WbsCode: "WBS-02", WbsName: "Thi công móng trụ T1", ParentId: null, IsActive: true, CreatedOn: new Date(),
+                        NavWBSPlan: { results: [] }
+                    },
+                    {
+                        WbsId: "W2-1", WbsCode: "WBS-02.1", WbsName: "Cọc khoan nhồi", ParentId: "W2", IsActive: true, CreatedOn: new Date(),
+                        NavWBSPlan: { results: [
+                            { PlanId: "P3", WbsPlanName: "Khoan tạo lỗ D1500", PlanStartDate: new Date("2026-02-01"), PlanEndDate: new Date("2026-02-05") },
+                            { PlanId: "P4", WbsPlanName: "Hạ lồng thép", PlanStartDate: new Date("2026-02-06"), PlanEndDate: new Date("2026-02-06") },
+                            { PlanId: "P5", WbsPlanName: "Đổ bê tông cọc", PlanStartDate: new Date("2026-02-07"), PlanEndDate: new Date("2026-02-07") }
+                        ]}
+                    },
+                    {
+                        WbsId: "W2-2", WbsCode: "WBS-02.2", WbsName: "Bệ trụ", ParentId: "W2", IsActive: false, CreatedOn: new Date(),
+                        NavWBSPlan: { results: [] }
+                    }
+                ];
 
-                    var oDetailModel = new JSONModel({
-                        ProjectId: oData.ProjectId,
-                        ProjectCode: oData.ProjectCode,
-                        ProjectName: oData.ProjectName,
-                        WBS: aTreeData 
-                    });
-                    oView.setModel(oDetailModel, "viewData");
+                // Chuyển đổi dữ liệu phẳng thành cây (Tree)
+                var aTreeData = this._transformToTree(aMockWBS);
 
-                }.bind(this),
-                error: function (oError) {
-                    oView.setBusy(false);
-                    console.error("Load Project Error:", oError);
-                    MessageBox.error("Không thể tải dữ liệu dự án từ hệ thống.");
-                }
-            });
+                var oDetailModel = new JSONModel({
+                    ProjectId: sProjectID,
+                    ProjectCode: sProjectID,
+                    ProjectName: "Dự án Mock " + sProjectID, // Tên giả theo ID
+                    WBS: aTreeData 
+                });
+                oView.setModel(oDetailModel, "viewData");
+
+            }.bind(this), 500); // Delay 0.5s cho cảm giác thật
         },
 
         _transformToTree: function(arr) {
             var nodes = {};
             var tree = [];
             
+            // Bước 1: Tạo Map và xử lý Children (Plan)
             arr.forEach(function(obj) {
                 var aPlans = [];
                 if (obj.NavWBSPlan && obj.NavWBSPlan.results) {
@@ -72,8 +90,7 @@ sap.ui.define([
                         return {
                             ...plan,
                             Type: 'PLAN', 
-                            // Thống nhất trường hiển thị là DisplayName
-                            DisplayName: plan.WbsPlanName || "Không có tiêu đề kế hoạch",
+                            DisplayName: plan.WbsPlanName || "Không có tên",
                             CustomId: plan.PlanId,
                             StatusText: "Đã lập lịch",
                             StatusState: "Success",
@@ -85,15 +102,16 @@ sap.ui.define([
                 nodes[obj.WbsId] = { 
                     ...obj, 
                     Type: 'WBS',
-                    DisplayName: obj.WbsName, // Thống nhất trường hiển thị
+                    DisplayName: obj.WbsName,
                     CustomId: obj.WbsCode,
                     StatusText: obj.IsActive ? 'Hoạt động' : 'Đã đóng',
                     StatusState: obj.IsActive ? 'Success' : 'Error',
-                    children: aPlans, 
-                    CreatedDate: obj.CreatedOn ? new Date(obj.CreatedOn) : null
+                    children: aPlans, // Gắn plan làm con của WBS
+                    CreatedDate: obj.CreatedOn
                 };
             });
 
+            // Bước 2: Xây dựng cấu trúc cây (WBS cha - con)
             arr.forEach(function(obj) {
                 if (obj.ParentId && nodes[obj.ParentId]) {
                     nodes[obj.ParentId].children.push(nodes[obj.WbsId]);
@@ -121,8 +139,11 @@ sap.ui.define([
             }
         },
 
-        onAddNewTask: function() { MessageBox.information("Chức năng demo"); },
-        onDeleteTask: function() { MessageBox.warning("Chức năng demo"); },
-        onSaveProject: function() { MessageToast.show("Đã lưu thay đổi"); }
+        onAddNewTask: function() { 
+            MessageToast.show("Đã thêm công việc giả lập!");
+            // Logic thêm vào Tree Model ở đây nếu cần test
+        },
+        onDeleteTask: function() { MessageToast.show("Đã xóa (Mock)!"); },
+        onSaveProject: function() { MessageToast.show("Đã lưu dữ liệu giả lập thành công!"); }
     });
 });
